@@ -1,0 +1,452 @@
+﻿@{
+    string PaymentSerial;
+    System.Data.DataTable DT=null;
+    GatewayCommon.Payment paymentModel;
+    GatewayCommon.ProviderRequestData providerRequestData = new GatewayCommon.ProviderRequestData();
+
+    if (!string.IsNullOrEmpty(Request.Params["PaymentSerial"].ToString()))
+    {
+        PaymentSerial = Request.Params["PaymentSerial"].ToString();
+
+        DT = PayDB.GetPaymentBankCardDetail(PaymentSerial);
+
+        if (DT != null && DT.Rows.Count > 0)
+        {
+        }
+        else
+        {
+            PayDB.InsertDownOrderTransferLog("注文を確認できません", 0, "", PaymentSerial, "", true);
+        }
+    }
+    else
+    {
+        PayDB.InsertDownOrderTransferLog("注文の作成に失敗しました。", 0, "", "", "", true);
+    }
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>入金申請完了</title>
+    <meta name="description" content="">
+
+
+    <link rel="shortcut icon" href="image/icon.ico">
+    <link rel="stylesheet" href="./css/style.css?11">
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="css/jquery.bxslider.css" rel="stylesheet" />
+    <link href="css/jquery.mmenu.css" rel="stylesheet" />
+    <link href="../css/sweetalert2.min.css" rel="stylesheet" />
+
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.mmenu.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/datepicker-ja.js"></script>
+    <script src="./js/fnc_common.js"></script>
+    <script src="js/ShopAPI.js"></script>
+    <script src="js/Math.uuid.js"></script>
+    <script src="../Scripts/sweetalert2.min.js"></script>
+    <script src="js/scrolltopcontrol.js"></script>
+    <style>
+        .swal-wide {
+            width: 850px !important;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            color: #4C535A;
+            border: 1px solid #ccc;
+            background: #F6F6F7;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+
+    <script>
+        var UserID = 0;
+        var Realname = "";
+        var paymentID = 0;
+        var StoreID = 0;
+        var EnterPageType; //0 = 商城進入頁面 / 2 =娛樂城銀行卡 / 3=娛樂城信用卡
+        var ChannelCode;
+        var ExchangeRate = 0;
+        var paymentEmail = "";
+        var eShopPay_accept_mail = false;
+        var eShopPay_Payment_mail = "";
+        var paynowlanguage = "ja";
+        var mlp;
+        var lang = "JPN";
+
+        function getTransferInformation() {
+            //parent.API_showLoading();
+
+            shopClient.PaymentBindingCard(UserID, paymentID, EnterPageType, function (success, o) {
+                if (success == true) {
+                    if (o.Result == 0) {
+                        if (o.Data.PaymentType == 0) { //銀行卡
+                            if (EnterPageType == 0 || EnterPageType == 2) {
+                                $("#BankName").text(o.Data.BankName);
+                                $("#BranchName").text(o.Data.BranchName);
+                                $("#AccountName").text(o.Data.AccountName);
+                                $("#BankNumber").text(o.Data.BankNumber);
+                                $("#BankCardName").text(o.Data.BankCardName);
+                            } else if (EnterPageType == 3) {
+                                $("#BankName").parent().hide();
+                                $("#BranchName").parent().hide();
+                                $("#AccountName").parent().hide();
+                                $("#BankNumber").parent().hide();
+                                $("#BankCardName").parent().hide();
+
+                                var tagInfo = JSON.parse(o.Data.CreditCardInfo);
+                                PayNow.createPayment({
+                                    publicKey: tagInfo.publicKey,
+                                    secret: tagInfo.secret,
+                                    env: tagInfo.env,
+                                });
+
+                                PayNow.mount('#paynow-container', {
+                                    locale: paynowlanguage,
+                                });
+                            }
+
+                        } else {//區塊練
+                            $("#BankName").parent().hide();
+                            $("#BranchName").parent().hide();
+                            $("#AccountName").text(o.Data.WalletName);
+                            $("#BankCardName").text(o.Data.WalletAddress);
+                        }
+
+                        //if (o.Data.Description) {
+                        //    $("#tr_ExchangeRate").show();
+                        //    $("#ExchangeRate").text(o.Data.Description);
+                        //    //$("#tr_Description").show();
+                        //    //$("#Description").text(o.Data.Description);
+                        //}
+
+                        $("#TransferRemark").text(o.Data.TransferRemark);
+
+                        if (o.Data.Description) {
+                            $("#Amount").text(o.Data.Amount + " ( " + o.Data.Description + " )");
+                        } else {
+                            $("#Amount").text(o.Data.Amount);
+                        }
+
+                        switch (o.Data.PaymentBy) {
+                            case 0:
+                                if (o.Data.TagInfo != "") {
+                                    let d = JSON.parse(o.Data.TagInfo);
+
+                                    for (var j = 0; j < d.length; j++) {
+                                        let k2 = $("#tmpDetail").children().clone();
+                                        $(k2).find(".ProductName").text(d[j].Name);
+
+                                        if (o.Data.Description) {
+                                            $(k2).find(".ProductValue").text(d[j].Price + " ( " + o.Data.Description + " )");
+                                        } else {
+                                            $(k2).find(".ProductValue").text(d[j].Price);
+                                        }
+
+                                        $(".Detail").append(k2);
+
+                                    }
+                                }
+                                break;
+                            case 1:
+                                let k1 = $("#tmpDetail").children().clone();
+                                $(k1).find(".ProductName").text(o.Data.ProductName);
+
+                                if (o.Data.Description) {
+                                    $(k1).find(".ProductValue").text(o.Data.Amount + " ( " + o.Data.Description + " )");
+                                } else {
+                                    $(k1).find(".ProductValue").text(o.Data.Amount);
+                                }
+
+                                $(".Detail").append(k1);
+                                break;
+                        }
+
+                        var shoppingCartData = [];
+                        window.sessionStorage.setItem("eShopPay_shoppingCartData", JSON.stringify(shoppingCartData));
+                        $('#deposit_block_tbody').show();
+                        //parent.API_hideLoading();
+                    } else {
+                        //parent.API_hideLoading();
+                        Swal.fire({
+                            text: o.Message,
+                            icon: 'error',
+                            showCloseButton: false,
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            /* window.location.href = "index.html";*/
+                        });
+                    }
+                } else {
+                    //parent.API_hideLoading();
+                    Swal.fire({
+                        text: "エラーが発生しました。お手数ですが、ページを更新して再度お試しください。",
+                        icon: 'error',
+                        showCloseButton: false,
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    }).then((result) => {
+                        /*window.location.href = "index.html";*/
+                    });
+                }
+            });
+
+        }
+
+        function creditCardCheckout() {
+            //parent.API_showLoading();
+            PayNow.checkout().then(response => {
+                if (response.error) {
+                    //  parent.API_ErrAlert("", response.error.message);
+                    alert(response.error.message);
+                }
+                //parent.API_hideLoading();
+            })
+        }
+
+        function getPaymentSerial() {
+            let url = new URL(window.location.href);
+            let params = new URLSearchParams(url.search);
+            paymentID = params.get('PaymentID');
+            Realname = params.get('Realname');
+            StoreID = params.get('StoreID');
+            ChannelCode = params.get('ChannelCode');
+
+            if (Realname == null) { //商城進來的
+                UserID = window.sessionStorage.getItem("eShopPay_MemberUserID");
+                GetPaymentDetailByID(0);
+                //EnterPageType = 0;
+                if (ChannelCode == "BankCard") {
+                    EnterPageType = 2;
+                } else if (ChannelCode == "CreditCard") {
+                    EnterPageType = 3;
+                }
+            } else { //娛樂城進來的
+
+                GetPaymentDetailByID(1);
+                if (ChannelCode == "BankCard") {
+                    EnterPageType = 2;
+                } else if (ChannelCode == "CreditCard") {
+                    EnterPageType = 3;
+                }
+            }
+        }
+
+        function addEmail() {
+
+            let UserEmail = paymentEmail;
+
+            window.sessionStorage.setItem("eShopPay_accept_mail", true);
+            window.sessionStorage.setItem("eShopPay_Payment_mail", UserEmail);
+
+            if (UserEmail == "") {
+                getTransferInformation();
+            } else {
+                shopClient.CheckEmailFormEntertainmentCity(UserEmail, Realname, paymentID, function (success, o) {
+                    if (success == true) {
+                        UserID = o.Message;
+                        getTransferInformation();
+                    } else {
+                        return Swal.showValidationMessage("發生錯誤。對造成的不便我們深感抱歉。");
+                    }
+                });
+            }
+        }
+
+    
+        //PaymentBy 0=商城 / 1=娛樂城
+        function GetPaymentDetailByID(PaymentBy) {
+            shopClient.GetPaymentDetailByID(paymentID, StoreID, function (success, o) {
+                if (success == true) {
+                    if (o.Result == 0) {
+                        if (o.Data[0].Status == 0) {
+
+                            if (PaymentBy == 0) {
+                                getTransferInformation();
+                            } else {
+                                if (o.Data[0].BuyerEMail) {
+                                    paymentEmail = o.Data[0].BuyerEMail;
+                                }
+                                addEmail();
+                            }
+
+                        } else {
+                            Swal.fire({
+                                text: "訂單狀態不正確。請關閉此窗口並重新創建訂單。",
+                                icon: 'error',
+                                showCloseButton: false,
+                                showCancelButton: false,
+                                showConfirmButton: false,
+                                allowOutsideClick: false
+                            });
+                        }
+                    } else {
+                        return Swal.showValidationMessage("發生錯誤。對造成的不便我們深感抱歉。");
+                    }
+
+                } else {
+                    return Swal.showValidationMessage("發生錯誤。對造成的不便我們深感抱歉。");
+                }
+            });
+        }
+
+        function getExchangeRate() {
+            shopClient.GetExchangeRateByCurrencyType("JPY", "USD", function (success, o) {
+                if (success == true) {
+                    if (o.Result == 0) {
+                        ExchangeRate = parseFloat(o.Message);
+                    } else {
+                        return Swal.showValidationMessage("發生錯誤。對造成的不便我們深感抱歉。");
+                    }
+
+                } else {
+                    return Swal.showValidationMessage("發生錯誤。對造成的不便我們深感抱歉。");
+                }
+            });
+        }
+
+        function init() {
+        }
+
+
+        window.onload = init;
+    </script>
+</head>
+<body style="">
+    <div class="mm-page">
+        <div id="wrap" class="wrap">
+            <main>
+                <div class="content">
+                    <div class="columnWrap">
+
+                        <div class="mainColumn mainColumn-left">
+                            <section class="mainColumn_inner deposit">
+                                <h1 class="h1Title01 title_box language_replace">入金申請完了</h1>
+                                <p class="complete_text">
+                                    <span class="language_replace">入金申請を受け付けました。</span>
+                                    <!--<br>当社指定口座へのご入金をお願いいたします。-->
+                                    <br>
+                                    <span class="language_replace">
+                                        現在の送金では、送金人名義を一切変更しないでください。
+                                        いかなる変更があっても返金の対象となります。
+                                        取引番號などを追加しないでください。
+                                    </span>
+                                    <!--<br /><span style="color:red;font-weight:bold">※ご送金の際に、【依頼人名】にご申請の「取引番号」と「ご本人様の名前（カタカナ）」を両方ご記入ください。</span>-->
+                                    <!--<br /><a class="inline red link language_replace" href="./TermsOfService.html" target="_blank">利用規約</a>&nbsp;&nbsp;<a class="inline red link language_replace" href="./LawRecorded.html" target="_blank">法的記載事項 </a>-->
+                                </p>
+                                <div class="deposit_block deposit_complete mt20">
+                                    <table class="formTable_inner">
+                                        <tbody id="deposit_block_tbody">
+                                            <tr class="formTable_line">
+                                                <th class="formTable_title language_replace">銀行名</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="BankName">
+                                                    @DT.Rows[0]["BankName"]
+                                                </td>
+                                            </tr>
+                                            <tr class="formTable_line">
+                                                <th class="formTable_title language_replace">支店・営業所名</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="BranchName">
+                                                    @DT.Rows[0]["BranchName"]
+                                                </td>
+                                            </tr>
+                                            <tr class="formTable_line">
+                                                <th class="formTable_title language_replace">口座番号</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="BankNumber">
+                                                    @DT.Rows[0]["BankNumber"]
+                                                </td>
+                                            </tr>
+
+
+                                            <tr class="formTable_line">
+                                                <th class="formTable_title language_replace">口座名義</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="AccountName">
+                                                    @DT.Rows[0]["AccountName"]
+                                                </td>
+                                            </tr>
+                                            @*<tr class="formTable_line">
+                                                <th class="formTable_title language_replace">取引番号</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="TransferRemark">
+                                                    @DT.Rows[0]["TransferRemark"]
+                                                </td>
+                                            </tr>*@
+                                            <tr class="formTable_line">
+                                                <th class="formTable_title language_replace">入金額</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="OrderAmount">
+                                                    @{
+                                                        var orderAmountRaw = DT.Rows[0]["OrderAmount"];
+                                                        var orderAmountDecimal = Convert.ToDecimal(orderAmountRaw);
+                                                        var displayOrderAmount = orderAmountDecimal % 1 == 0 ? ((int)orderAmountDecimal).ToString() : orderAmountDecimal.ToString();
+                                                    }
+                                                    @displayOrderAmount
+                                                </td>
+                                            </tr>
+                                            <tr class="formTable_line" id="tr_ExchangeRate" style="display:none">
+                                                <th class="formTable_title language_replace">為替レート</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="ExchangeRate">
+                                                </td>
+                                            </tr>
+                                            <tr class="formTable_line" id="tr_Description" style="display:none">
+                                                <th class="formTable_title language_replace">述べる</th>
+                                                <td class="formTable_cell formTable_cell-confirm" id="Description">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!--<p class="complete_text">
+                                    <span class="language_replace">⚠️ご注意ください</span>-->
+                                    <!--<br>当社指定口座へのご入金をお願いいたします。-->
+                                    <!--<br>
+                                    <span class="language_replace">1. お振込の際は振込人名の前に上記記載の取引番号必ず入力するようお願い致します。</span>
+                                    <br>
+                                    <span class="language_replace">2. 振込指定日は当日もしに設定してください。〈例〉123456ヤマダタロウ</span>
+                                    <br>
+                                    <span class="language_replace">3. 正しく取引番号を入力していない場合は入金額が反映されない可能性がございますのでご注意ください。</span>
+                                    <br>
+                                    <span class="language_replace">4. 必ず上記記載の入金額をお振込みください。</span>-->
+                                    <!--<br /><span style="color:red;font-weight:bold">※ご送金の際に、【依頼人名】にご申請の「取引番号」と「ご本人様の名前（カタカナ）」を両方ご記入ください。</span>-->
+                                    <!--<br /><a class="inline red link language_replace" href="./TermsOfService.html" target="_blank">利用規約</a>&nbsp;&nbsp;<a class="inline red link language_replace" href="./LawRecorded.html" target="_blank">法的記載事項 </a>-->
+                                <!--</p>-->
+                                <div class="deposit_block deposit_complete mt20" id="CreditCardContainer">
+                                    <div id="paynow-container" style="border: 1px solid #ccc; border-radius: 10px;"></div>
+                                </div>
+                                <!--<div class="deposit_block deposit_complete mt20" id="ExchangeRateContainer">
+        <table class="formTable_inner">
+            <thead>
+                <tr class="formTable_line">
+                    <th class="formTable_title">幣別</th>
+                    <th class="formTable_title">買入</th>
+                    <th class="formTable_title">賣出</th>
+                </tr>
+            </thead>
+            <tbody id="ExchangeRate_tbody">
+            </tbody>
+        </table>
+    </div>-->
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+        </div><div class="loading" style="display: none;"></div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+﻿{
+  "ProviderCode": "EVOpay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "http://web214apigopay.hengaofangfuwuqi0.com/api/pay/unifiedorder",
+  "QueryOrderUrl": "http://web214apigopay.hengaofangfuwuqi0.com/api/pay/query ",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "100585",
+  "MerchantKey": "7b237edb7ec51d565516ed7c7a908668",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/EVOpayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "209.39.20.22",
+    "68.178.171.205",
+    "184.168.125.160",
+    "184.168.125.171",
+    "184.20.34.77",
+    "45.207.58.203",
+    "38.47.232.213"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "APL15",
+      "TradeType": "alipaySmallPurse"
+    },
+    {
+      "ServiceType": "ALP02",
+      "TradeType": "alipayPinMoney"
+    },
+    {
+      "ServiceType": "ALP16",
+      "TradeType": "alipayPassRed"
+    },
+    {
+      "ServiceType": "ALP17",
+      "TradeType": "alipayCodeSmall"
+    },
+    {
+      "ServiceType": "ALP18",
+      "TradeType": "QianxinTransfer"
+    },
+    {
+      "ServiceType": "ALP19",
+      "TradeType": "alipayCode"
+    },
+    {
+      "ServiceType": "ALP20",
+      "TradeType": "taoBaoMoneyRed"
+    },
+    {
+      "ServiceType": "ALP21",
+      "TradeType": "taoBaoMoneyRed"
+    },
+    {
+      "ServiceType": "UNP08",
+      "TradeType": "cloudTransferRed"
+    },
+    {
+      "ServiceType": "ALP12",
+      "TradeType": "alipayAAPacketModdle"
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

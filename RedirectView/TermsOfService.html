@@ -1,0 +1,608 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>利用規約</title>
+
+
+    <link rel="shortcut icon" href="image/icon.ico">
+    <link rel="stylesheet" href="./css/style.css?11">
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="css/jquery.bxslider.css" rel="stylesheet" />
+    <link href="css/jquery.mmenu.css" rel="stylesheet" />
+    <link href="../css/sweetalert2.min.css" rel="stylesheet" />
+
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.mmenu.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/datepicker-ja.js"></script>
+    <script src="./js/fnc_common.js"></script>
+    <script src="js/ShopAPI.js"></script>
+    <script src="js/Math.uuid.js"></script>
+    <script src="../Scripts/sweetalert2.min.js"></script>
+    <script src="js/scrolltopcontrol.js"></script>
+    <script>
+        //購物車清單
+        var shoppingCartData = [];
+
+        function checkBaseInfo() {
+            var memberLoginState = window.sessionStorage.getItem("eShopPay_MemberLoginState");
+            var ShoppingCartData = window.sessionStorage.getItem("eShopPay_shoppingCartData");
+
+            if (memberLoginState) {
+                if (memberLoginState.toUpperCase() == "SUCCESS") {
+                    $("#nav_logined").show();
+                } else {
+                    $("#nav_unlogined").show();
+                }
+            } else {
+                $("#nav_unlogined").show();
+            }
+
+            if (ShoppingCartData) {
+                shoppingCartData = JSON.parse(ShoppingCartData);
+
+                if (shoppingCartData.length > 0) {
+                    for (var i = 0; i < shoppingCartData.length; i++) {
+                        let k = `<li class="cart_item">
+                                                                      <img src="${shoppingCartData[i].ImgUrl}" class="cart_itemImg" alt="">
+                                                                      <p class="cart_text">名前： <span class="cart_textNum">${shoppingCartData[i].Name}</span></p>
+                                                                      <p class="cart_text">額面： <span class="cart_textNum">${shoppingCartData[i].Price}</span></p>
+                                                                  <button class="cart_delBtn" onclick="removeShoppingCart()" data-price="${shoppingCartData[i].Price}" data-index="${shoppingCartData[i].Index}">削除</button>
+                                                                  </li>`;
+
+                        $("#div_ShoppingCart").append(k);
+                    }
+                    $(".cart_count").text(shoppingCartData.length);
+                }
+            }
+        }
+
+        function removeShoppingCart() {
+            let seleIndex = $(event.target).data("index");
+            let price = $(event.target).data("price");
+
+            let indexToRemove = shoppingCartData.findIndex(x => x.Index == seleIndex && x.Price == price);
+
+            if (indexToRemove !== -1) {
+                shoppingCartData.splice(indexToRemove, 1);
+                window.sessionStorage.setItem("eShopPay_shoppingCartData", JSON.stringify(shoppingCartData));
+            }
+            $(".cart_count").text(shoppingCartData.length);
+
+            $(event.target).parents(".cart_item").remove();
+        }
+
+        function removeAllShoppingCart() {
+            shoppingCartData = [];
+            window.sessionStorage.setItem("eShopPay_shoppingCartData", JSON.stringify(shoppingCartData));
+            $(".cart_count").text(shoppingCartData.length);
+
+            $("#div_ShoppingCart").empty();
+        }
+
+        function createPayment() {
+            var memberLoginState = window.sessionStorage.getItem("eShopPay_MemberLoginState");
+            var LoginAccount = window.sessionStorage.getItem("eShopPay_MemberEmail");
+            $(".loading").show();
+            $(".cart_menu").hide();
+            if (memberLoginState) {
+                if (memberLoginState.toUpperCase() == "SUCCESS") {
+                    if (shoppingCartData.length == 0) {
+                        $(".loading").hide();
+                        errAlert("", "購入したい製品を選択してください");
+                    } else {
+                        let totalAmount = 0;
+
+                        for (var i = 0; i < shoppingCartData.length; i++) {
+                            totalAmount += parseInt(shoppingCartData[i].Price);
+                        }
+
+                        shopClient.PaymentCreateBankCard(LoginAccount, totalAmount, shoppingCartData, function (success, o) {
+                            if (success == true) {
+                                if (o.Result == 0) {
+                                    $(".loading").hide();
+                                    Swal.fire({
+                                        text: "注文が作成されました。チェックアウトページに移動してください",
+                                        icon: 'success'
+                                    }).then((result) => {
+                                        window.location.href = "TransferInformation.html?PaymentID=" + o.Message;
+                                    });
+                                } else {
+                                    $(".loading").hide();
+                                    errAlert("", o.Message);
+                                }
+                            } else {
+                                $(".loading").hide();
+                                errAlert("", "エラーが発生しました。お手数ですが、ページを更新して再度お試しください。");
+                            }
+                        });
+                    }
+                } else {
+                    $(".loading").hide();
+                    Swal.fire({
+                        text: "まずログインしてください",
+                        icon: 'error'
+                    }).then((result) => {
+                        window.location.href = "Login.html";
+                    });
+                }
+            } else {
+                $(".loading").hide();
+                Swal.fire({
+                    text: "まずログインしてください",
+                    icon: 'error'
+                }).then((result) => {
+                    window.location.href = "Login.html";
+                });
+            }
+
+        }
+
+        //#region Alert
+        function successAlert(title, text) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'success'
+            });
+        }
+
+        function errAlert(title, text) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'error'
+            });
+        }
+        //#endregion
+
+        function init() {
+            shopClient = new ShopAPI("../API/ShopAPI.asmx");
+            checkBaseInfo();
+        }
+
+        function logout() {
+
+            Swal.fire({
+                text: "ログアウトしますか?",
+                icon: 'error',
+                showCancelButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.sessionStorage.removeItem("eShopPay_MemberLoginState");
+                    window.sessionStorage.removeItem("eShopPay_MemberLoginState");
+                    window.sessionStorage.removeItem("eShopPay_shoppingCartData");
+                    window.sessionStorage.removeItem("eShopPay_MemberUserID");
+
+                    window.location.href = "index.html";
+                }
+            });
+        }
+
+        window.onload = init;
+    </script>
+</head>
+<body>
+    <div class="mm-page">
+        <div id="wrap" class="wrap">
+            <header class="header" id="header" style="left: 0px;">
+                <div class="subHeader">
+                    <div class="header_inner clearfix">
+                        <div class="language">
+                            <div class="language_selectBox">
+                                <img src="./image/icon_ja.png" class="language_selectImg" alt="ja">
+                                <p class="language_selectText">Japanese</p>
+                            </div>
+                            <ul class="language_menu">
+                                <li>
+                                    <div class="language_item language_item-selected">
+                                        <img src="./image/icon_ja.png" class="language_icon language_icon-ja" alt="ja">
+                                        <p class="language_text">Japanese</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="subHeader_list">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="header_inner clearfix">
+                    <div class="header_logo">
+                        <a href=""><img src="./image/logo.png" class="header_logoImg" alt="ギフト券・ギフトカードの格安購入・換金・売買なら。"></a>
+                    </div>
+                </div>
+            </header>
+
+
+            <main>
+                <section class="content other">
+                    <h1 class="h1Title01 title_box">利用規約</h1>
+                    <section>
+                        <h2 class="subtitle01">第1条　規約の内容及び当社の役割</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">
+                                この規約（以下「本利用規約」）は、株式会社Ｊ.VHOLDONGS（以下「当社」）が運営するインターネットサービス「 CROWNPOINT」において、当社が提供する各種サービス（以下「本サービス」）及びウェブサイト（以下「本サイト」）の利用条件を定めるものです。
+                            </li>
+                            <li class="otherList_item">本サービスのご利用者（以下「ユーザー」）は、本利用規約をよくお読みになり、その内容をご理解・ご承諾いただいた上、ご利用ください。</li>
+                            <li class="otherList_item">
+                                当社は予告なく本サービス内容及び本利用規約を変更することができるものとし、変更後は改定された利用規約が適用されますので、あらかじめご了承ください。
+                            </li>
+                            <li class="otherList_item">本サービスはユーザー間の商品の売買の場及び機会を提供するもので、売買契約はユーザー間で行われ、商品の売買契約、商品内容の保証等については、すべて当事者となるユーザー自らの責任において行われます。当社は自ら売買を行うものではなく、売買の委託を受けるものでもなく、競りの方法（オークション）によって商品の売買のあっせんを行うものでもありません。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第2条　商品の購入及び決済</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">
+                                商品の購入を行うユーザー（以下「購入者」）は、当社所定の手続によって、商品の出品を行った他のユーザー（以下「出品者」）から購入を行うことができます。
+                            </li>
+                            <li class="otherList_item">購入者は、本サービス上で表示されている当該商品の販売価格を売買代金として支払い、商品を受領した時、購入者と出品者との間の売買契約が成立するものとします。</li>
+                            <li class="otherList_item">売買契約が成立した場合、当社は、購入者の残高（以下「アカウント残高」）から当該売買契約における売買代金相当額を引き落とすものとします。当社によるアカウント残高の引き落としが完了した時点で、購入者は、出品者に対して代金の支払いを完了したものとします。</li>
+                            <li class="otherList_item">
+                                購入者及び出品者は、売買契約に基づく権利及び義務を、第三者に譲渡、販売及び移転等の処分をすることはできないものとします。
+                            </li>
+                            <li class="otherList_item">当社は通常、購入が行われる前に、購入にかかる申込み内容等の意思の確認措置として、確認画面を表示し、購入者の契約意思を確認します。</li>
+                            <li class="otherList_item">購入者は、利用規約の理解及び同意する意思のない購入、購入及び利用する意思のない商品の購入及び誤った操作による購入のないよう、必ず本サービス上の表示を確認の上でご購入ください。</li>
+                            <li class="otherList_item">購入者は、当社所定の手続きによって、購入にかかる確認措置が不要である旨を、自らの意思で申請することができます。</li>
+                            <li class="otherList_item">当社は、確認措置が不要である意思を表明した購入者による購入の手続きにおいて、確認画面を表示しません。購入者は、利用規約の理解及び同意する意思のない購入、購入及び利用する意思のない商品の購入及び誤った操作による購入のないよう、必ず本サービス上の表示を確認の上でご購入ください。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第3条　キャンセル及び返金</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">売買契約成立後、購入者及び出品者は、本利用規約に別段の定めがある場合を除き、売買契約の取消はできません。</li>
+                            <li class="otherList_item">購入者は、売買契約成立後30分以内に、当該商品の有効性（登録又は利用でき、かつ、商品内容に相違のないこと）を確認する手続き（以下「確認手続」）を行うものとします。購入者は、当該商品が有効か否かによって以下の各号の対応を行うものとします。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">当該商品の有効性が確認できた場合、購入者は、当社所定の手続きによって、当社への報告（以下「有効報告」）を行うものとします。</li>
+                                <li class="otherList_item">当該商品の有効性が確認できない場合、購入者は、当社所定の手続きによって、当社への報告（以下「無効報告」）を行うものとします。</li>
+                            </ol>
+                            <li class="otherList_item">有効性とは、以下の各号を満たす状態を指すものとします。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">確認手続の時点で、当該商品が現に登録又は利用できた商品であること</li>
+                                <li class="otherList_item">当該商品が額面価格（券面記載の利用可能金額）を有する場合、出品者が入力した額面価格と実際の額面価格が一致していること</li>
+                            </ol>
+                            <li class="otherList_item">当社は、購入者から無効報告が行われた場合、売買契約の取消及び商品の返品についての申請（以下「返品申請」）を受け付け、出品者への当該商品の代金の支払いを停止し、売買契約の内容その他の必要な調査及び審査を行います。</li>
+                            <li class="otherList_item">当社は、返品申請を受け付けた売買契約において、以下の各号のいずれかに該当する場合、売買契約を取消し、購入者に代金を返金します。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">当社が、調査及び審査によって当該売買契約の取消が妥当と判断した場合</li>
+                                <li class="otherList_item">出品者が、当該売買契約の取消が妥当と判断した場合</li>
+                            </ol>
+
+                            <li class="otherList_item">当社は、有効報告が行われた場合又は当社所定の手続きによって無効報告が行われなかった場合、当該商品が有効とみなし、出品者への当該商品の代金の支払いを行います。それ以降の購入者からの報告については、当社調査及び審査を行う場合であっても、購入者への返金を行う必要はないものとします。購入者は、売買契約成立後は、速やかに確認手続の実施及び商品の管理を行ってください。</li>
+                            <li class="otherList_item">当社は、購入及び利用する意思のない商品の購入及び誤った操作による購入等、購入者の事情によって売買契約の取消をすることはありません。</li>
+                            <li class="otherList_item">当社は、購入者が当該商品の有効性を確認したにも関わらず無効報告を行った場合、虚偽の内容を含む又は偽計による返品申請行為とみなすことがあります。</li>
+                            <li class="otherList_item">当社は、返品申請を受け付けた売買契約において、出品者が当該売買契約の取消を行った場合、操作上の誤り等のいかなる事情があっても取消を行う前の状態に戻すことはありません。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第4条　商品の出品</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">ユーザーは、当社所定の手続きによって、商品の出品を行うことができます。</li>
+                            <li class="otherList_item">出品可能な商品は、以下の各号の全てを満たすものに限られます。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">現に有効であり、使用可能であるもの</li>
+                                <li class="otherList_item">強盗、恐喝、窃盗、詐欺、横領、偽造その他の犯罪により入手したものではないもの</li>
+                                <li class="otherList_item">資金洗浄、マネーロンダリング、その他犯罪による収益の移転防止に関する法律に違反したものではないもの</li>
+                            </ol>
+                            <li class="otherList_item">出品者は、当該商品が前項各号の要件に適合するものであることを当社及び他のユーザーに対して保証するものとします。</li>
+                            <li class="otherList_item">出品者の出品した商品が、第2項その他本利用規約の規定に違反する又は違反するおそれがあると当社が判断した場合には、当該商品の出品停止、成立した取引の取消、当該出品者の本サービスの利用停止、ユーザーの登録の取消、登録情報の変更及びアカウント残高の支払い停止等、当社の判断で適切な措置を講ずることができ、これによってユーザーが被った損害について当社は責任を負いません。</li>
+                            <li class="otherList_item">出品者は、出品にあたっては、本利用規約並びに関連規程その他の法令等を遵守しなければなりません。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第5条　商品の販売及び手数料</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">売買契約が成立した場合、出品者は、当社に対し、購入者が支払う商品の売買代金を当社が代理となり受領する権限を与えるものとします。なお、出品者は、当該売買契約における売買代金を購入者から直接受領してはならないものとします。</li>
+                            <li class="otherList_item">売買契約が成立した場合、出品者は、当社に対し、手数料（以下「販売手数料」）を支払うものとします。</li>
+                            <li class="otherList_item">当社は、当該商品が額面価格（券面記載の利用可能金額）を有する性質か否かによって以下の各号のとおり販売手数料の算出を行います。尚、出品者が入力した商品情報と実際の商品内容が異なる場合は、実際の商品内容を優先するものとします。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">当該商品が額面価格を有する場合、販売手数料は、当該商品の額面価格に当社が本サービス上で定める手数料率を乗じた金額とします。</li>
+                                <li class="otherList_item">当該商品が額面価格を有しない場合、販売手数料は、当該商品の販売価格を額面価格とみなし、その価格に当社が本サービス上で定める手数料率を乗じた金額とします。</li>
+                            </ol>
+                            <li class="otherList_item">当社は、当該商品の販売価格から、販売手数料相当額を差し引いた金額を、出品者のアカウント残高に追加することによって、出品者から販売手数料を受領するものとします。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第6条　売買契約の変更</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">購入者により無効報告が行われた当該商品について、出品者が入力した商品内容と実際の商品内容が相違している場合、当社は、購入者及び出品者に対して売買契約の変更の承諾を求め、以下の各号の対応を行います。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">当社は、購入者が当該商品の登録又は利用ができたと判断し、かつ購入者及び出品者が売買契約の変更を承諾した場合、以下の対応を行います。</li>
+                                <ol class="otherList otherList_inner">
+                                    <li class="otherList_item">(ア) 実際の額面価格に出品者が指定した販売率を乗じ、相当の販売価格及び、相当の販売手数料を差し引いた、相当の売買代金を算出します。</li>
+                                    <li class="otherList_item">(イ) 購入者が支払い済みの販売価格と、相当の販売価格を比較した差額分について、購入者に対し、返金又は請求を行います。</li>
+                                    <li class="otherList_item">(ウ) 購入者に返金を行う場合、当社は、相当の売買代金を、出品者のアカウント残高に追加します。</li>
+                                    <li class="otherList_item">(エ) 購入者に請求を行う場合、当社は、購入者より請求金額の受領後に、相当の売買代金を、出品者のアカウント残高に追加します。</li>
+                                </ol>
+                                <li class="otherList_item">当社は、購入者が当該商品の登録又は利用ができなかったと判断した場合、購入者に代金を返金し、売買契約を取消します。</li>
+                                <li class="otherList_item">購入者又は出品者が売買契約の変更に承諾しなかった場合、当社調査及び審査を行い、当社の判断で適切な措置を講ずることができるものとします。</li>
+                            </ol>
+                            <li class="otherList_item">購入者により有効報告が行われた又は当社所定の手続きによって無効報告が行われなかった当該商品について、出品者が入力した商品内容と実際の商品内容が相違している場合であっても、当社は、購入者及び出品者に対して売買契約の変更を求めず、購入者又は出品者に対して返金を行う義務を持たないものとします。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">ただし、購入者及び出品者が売買契約の変更を承諾した場合、当社は以下の対応を行います。</li>
+                                <ol class="otherList otherList_inner">
+                                    <li class="otherList_item">(ア) 実際の額面価格に出品者が指定した販売率を乗じ、相当の販売価格及び、相当の販売手数料を差し引いた、相当の売買代金を算出します。</li>
+                                    <li class="otherList_item">(イ) 購入者が支払い済みの販売価格と、相当の販売価格を比較した差額分について、購入者に対し、返金又は請求を行います。</li>
+                                    <li class="otherList_item">(ウ) 出品者が受領済みの売買代金と、相当の売買代金を比較した差額分について、出品者に対し、支払い又は請求を行います。</li>
+                                    <li class="otherList_item">(エ) 購入者に返金を行う場合、当社は、出品者より請求金額の受領後に、差額分の金額を、購入者のアカウント残高に追加します。</li>
+                                    <li class="otherList_item">(オ) 出品者に支払いを行う場合、当社は、購入者より請求金額の受領後に、差額分の金額を、出品者のアカウント残高に追加します。</li>
+                                </ol>
+                            </ol>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第7条　アカウント残高規約</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">アカウント残高の利用は、本サイトのサービスを利用する目的に限定します。</li>
+                            <li class="otherList_item">アカウント残高はアカウントの利用権を有するご本人様のみが利用できるものとします。</li>
+                            <li class="otherList_item">アカウント残高およびアカウント残高を持つアカウントの他人への譲渡、販売、質入れ等の目的外利用を禁止します。当社の判断によって、管轄警察署、税務署等の公的機関にユーザーの同意なく報告ができるものとし、公的機関からの要請によってユーザーが被った損害について当社は責任を負いません。</li>
+                            <li class="otherList_item">アカウント残高、アカウント残高を持つアカウントの盗難、他人による利用等によってユーザーが被った損害について当社は責任を負いません。</li>
+                            <li class="otherList_item">当社は資金決済に関する法律（以下「資金決済法」）に準拠した対応を行います。</li>
+                            <li class="otherList_item">アカウント残高には、商品を購入できる残高（以下、購入可能残高）、および引出しできる残高（以下、引出可能残高）があり、残高の追加方法によって種類が異なります。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">購入可能残高：銀行振込・コンビニ入金・返金による残高</li>
+                                <li class="otherList_item">引出可能残高：銀行振込・返金・販売益による残高</li>
+                            </ol>
+                            <li class="otherList_item">新しく発行されるアカウント残高の有効期限は、発行日から3年間経過する日の属する月の末日とします。</li>
+                            <li class="otherList_item">有効期限内にアカウント残高の数字に増減がある場合、増減した日から3年間経過する日の属する月の末日まで延長されます。</li>
+                            <li class="otherList_item">有効期限は購入可能残高と引出可能残高それぞれに設定されます。</li>
+                            <li class="otherList_item">当社は、有効期限内の利用が確認できない場合、事前にユーザーに通知することなくアカウント残高を削除することができます。この場合、アカウント残高は失効します。</li>
+                            <li class="otherList_item">資金決済法に基づき払戻しが認められる場合及び当社が本利用規約で定める場合を除き、アカウント残高の払戻しはできません。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第8条　アカウントについて</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">アカウントの利用目的は本サイトの利用に限定し、かつアカウントに登録された個人情報のご本人様の利用に限定します。</li>
+                            <li class="otherList_item">ユーザーは、アカウントを適切に管理する義務を持ち、特にパスワードの公開やアカウントの共有等のセキュリティ上問題のある環境にアカウントを置かないよう努力することが求められるものとします。</li>
+                            <li class="otherList_item">ユーザーが本サイトの利用を停止するには、当社の指定する方法によってアカウントの破棄（以下「退会」）を行うものとします。</li>
+                            <li class="otherList_item">ユーザーの退会時には、アカウント残高の引き出しを行うことを同意するものとします。</li>
+                            <li class="otherList_item">ユーザーの死亡時には、ユーザーは本サービスを死亡と同時に退会したものとし、アカウント残高の精算を除いて、生存中ユーザーが当社に対して有していた権利および義務はユーザーに一身専属に帰属し、相続されないものとします。</li>
+                        </ol>
+                        <!-- <p class="otherList_title">【コンビニ入金】</p>
+                        <ol class="otherList otherList_inner">
+                            <li class="otherList_item">入金を受け付ける額面は1,000円以上、100円単位とします。</li>
+                            <li class="otherList_item">申請後、決済サービスから送信されるメールの内容に従ってお支払いを行ってください。お支払いが確認でき次第アカウント残高に反映を行います。</li>
+                        </ol>
+                        <li class="otherList_item">入金申請において、当社はユーザーに本人確認を求めることがあり、その場合ユーザーは本人確認に応じる必要があるものとします。当社はこの確認ができるまではアカウント残高の反映は行いません。</li>
+                        <li class="otherList_item">お振込み内容、入金申請、本人確認又はその他の手続きに問題があると当社が判断した場合、アカウント残高の反映は行いません。この場合、ユーザーは振込元口座の金融機関に組戻しの手続きを行うものとし、当社は組戻しによってユーザーへの返金を行います。ユーザーの指定口座へお振込みによる返金は行いません。尚、組戻しにかかる費用はユーザーのご負担とさせていただきます。</li></ol> -->
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第9条　禁止行為</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">ユーザーは、本サービスの利用にあたり、以下の各号のいずれかに該当する行為をしてはいけません。</li>
+
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">本サービスを利用する意思なくアカウントを登録する行為</li>
+                                <li class="otherList_item">なりすまし行為及び虚偽の情報を登録する行為。</li>
+                                <li class="otherList_item">連絡手段として有効でないメールアドレス、電話番号、ソーシャルネットワークアカウント等を登録する行為。</li>
+                                <li class="otherList_item">登録情報以外の振込人名義での入金行為。</li>
+                                <li class="otherList_item">登録情報以外の受取人名義での引出行為。</li>
+                                <li class="otherList_item">購入する意思のない商品の購入行為。</li>
+                                <li class="otherList_item">売却する意思のない商品の出品行為。</li>
+                                <li class="otherList_item">第4条第2項の要件を満たさない商品を出品する行為。</li>
+                                <li class="otherList_item">虚偽の内容を含む又は偽計による返品申請行為。</li>
+                                <li class="otherList_item">反社会的勢力による登録、利用及び反社会的勢力に利する行為並びに犯罪行為。</li>
+                                <li class="otherList_item">当社、他のユーザー及び第三者の知的財産権、その他の権利又は利益を侵害する行為。</li>
+                                <li class="otherList_item">当社調査又は情報提供への協力要請に対し、非回答又は虚偽の回答を行う等の非協力的な行為。</li>
+                                <li class="otherList_item">アカウントの他人への譲渡、販売、質入れ等の利用行為。</li>
+                                <li class="otherList_item">当社のソフトウェア、ハードウェア、通信機器、保有アカウント等の機能を妨害、破壊、制限、操作するコンピュータウイルス、ファイル、プログラム等を送信又は書き込む行為。</li>
+                                <li class="otherList_item">公序良俗を害する行為、青少年の保護に関する法令等の趣旨に反する行為。</li>
+                                <li class="otherList_item">その他当社による本サービスの運営を妨害するおそれのある行為。</li>
+                                <li class="otherList_item">本利用規約並びに関連規程その他法令に反する行為。</li>
+                            </ol>
+                            <li class="otherList_item">当社は、ユーザーが前項のいずれかに該当する行為をしたと当社が判断又は推定した場合、以下の各号の対応を行うことができるものとします。これによって当該ユーザー、当該ユーザーと売買契約を行った各ユーザー又は第三者が被った損害について当社は責任を負いません。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">当該ユーザーに対し、本サービスの提供の停止、ユーザーの登録の取消、アカウント残高の払戻しの停止、登録情報の変更及び当社関連サービスの利用の禁止</li>
+                                <li class="otherList_item">当該ユーザー及び当該ユーザーと売買契約を行った各ユーザーに対し、各売買契約における売買代金相当額を上限とするアカウント残高の請求、アカウント残高の引き落としの停止及びアカウント残高の追加の停止。</li>
+                                <li class="otherList_item">当該ユーザー及び当該ユーザーと売買契約を行った各ユーザーに対し、各売買契約の状況確認及び本人確認その他の調査、並びに当社調査期間中の各売買契約に基づくアカウント残高の引き落とし及び追加を中断する行為。</li>
+                                <li class="otherList_item">警察署、税務署その他の公的機関に対する報告及び情報提供。</li>
+                            </ol>
+                        </ol>
+                    </section>
+
+                    <section>
+                        <h2 class="subtitle01">第10条　本サービスの提供等</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">当社は、本サービス内容について瑕疵が存在しないことまでは保証するものではありません。当社は、ユーザーが本サービスを利用することで得た情報及びコンピュータプログラム等の完全性、正確性、適用性、有用性等について責任を負いません。</li>
+                            <li class="otherList_item">当社は、以下の何れかの事由に該当する場合、ユーザーに事前に通知することなく、本サービスの利用の一部若しくは全部を中断若しくは停止、又は本サービスの内容の変更ができるものとします。</li>
+                            <ol class="otherList otherList_inner">
+                                <li class="otherList_item">本サービスの提供のための装置及びシステムの保守点検又は更新を、定期的に又は緊急に行う場合。</li>
+                                <li class="otherList_item">災害、火災、停電、その他の不可抗力により本サービスの提供が困難な場合。</li>
+                                <li class="otherList_item">第一種電気通信事業者の役務が提供されない場合。</li>
+                                <li class="otherList_item">その他、本サービスの中断、停止又は内容の変更が必要と当社が判断した場合。</li>
+                            </ol>
+                    </section>
+
+                    <section>
+                        <h2 class="subtitle01">第11条　免責事項</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">当社は、本サービスで売買された商品に関する一切の事項について、当社の責に帰すべき事由による場合を除き責任を負いません。</li>
+                            <li class="otherList_item">当社は、本サービスにおける出品者、購入者に関する一切の事項について、当社の責に帰すべき事由による場合を除き責任を負いません。</li>
+                            <li class="otherList_item">売買契約はユーザー間で行われ、商品の売買契約、商品内容の保証等については、すべて当事者となるユーザー自らの責任において行われます。</li>
+                            <li class="otherList_item">当社は、本サービス上で売買される商品について、その有効性、非盗品性及び適法性等を保証するものではありません。</li>
+                            <li class="otherList_item">当社は、本サービス上で売買される商品を第三者サービス上で利用又は登録した後、第三者サービス上のアカウント、登録情報又はアカウント残高等について、消失、削除及び不利益を被った場合であっても、これによってユーザーが被った損害について当社は責任を負いません。</li>
+                            <li class="otherList_item">当社は、ユーザーによる本サービスの利用が、ユーザーに適用のある日本及び外国の法令、業界団体の内部規則等に適合することを保証するものではありません。ユーザーは、本サービスを利用することが、ユーザーに適用のある日本及び外国の法令、業界団体の内部規則等に違反するか否かを自らの責任と費用に基づいて調査するものとし、当社の責に帰すべき事由による場合を除き責任を負いません。</li>
+                            <li class="otherList_item">本サービスに関連してユーザー間又はユーザーと第三者との間において生じた取引、連絡、紛争等については、ユーザー自らの責任において処理及び解決するものとし、当社は責任を負いません。</li>
+                            <li class="otherList_item">当社は、本サービスの提供の停止、終了若しくは変更、又はコンテンツの削除若しくは消失､又はユーザーの登録の取消若しくは登録情報の変更、又は本サービスの利用によるユーザーの使用機器の故障、損傷若しくはデータの消失、その他本サービスに関連してユーザーが被った損害の賠償責任を負いません。</li>
+                            <li class="otherList_item">他のウェブサイトから本サイトへのリンク及び本サービスの紹介並びに本サイトから他のウェブサイトへのリンクがある場合、本サービスのサイト外のウェブサイトは当社が管理運営するものではなく、本サービス外のサイト又はサービスの利用可能性、コンテンツ、広告、コンピュータプログラム、商品及び役務等については責任を負うものではなく、これによりユーザー又は第三者が被った損害について当社は責任を負いません。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第12条　損害賠償</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">ユーザーは、本利用規約の違反又は本サービスの利用に関連して当社に損害を与えた場合、当社に対しその損害を賠償しなければなりません。</li>
+                            <li class="otherList_item">ユーザーは、本サービスの利用に関連して他のユーザー又は第三者からクレームを受けた又はそれらの者と紛争を生じた場合、直ちに当社に通知し、ユーザーの責任と費用において当該クレーム又は紛争を処理し、その経過及び結果を当社に報告するものとします。</li>
+                            <li class="otherList_item">ユーザーによる本サービスの利用に関連して当社が他のユーザー又は第三者から権利侵害その他の理由により請求を受けた場合、ユーザーは当該請求に基づき当社が当該の者に支払を余儀なくされた金額を賠償しなければなりません。</li>
+                            <li class="otherList_item">当社は、本サービスに関連してユーザーが被った損害について賠償責任を負いません。なお、本利用規約の定め又は本利用規約の損害賠償責任を免責する規定に関わらず消費者契約法の適用その他の理由により、当社がユーザーに対して損害賠償責任を負う場合、当社の賠償責任は、当該損害の原因となった商品の売買契約に基づき当社が受領した販売手数料の金額を上限とします</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第13条　個人情報の取り扱いについて</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">本サイトのサービスにおけるユーザーの個人情報の取り扱いについて、当社はプライバシーポリシーを設けて適正な管理を行います。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第14条　準拠法及び管轄裁判所</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">本利用規約の準拠法は日本法とします。また、本サービスに関する当社とユーザーとの紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 class="subtitle01">第15条　個人情報の取り扱いについて</h2>
+                        <ol class="otherList">
+                            <li class="otherList_item">本利用規約の一部が消費者契約法その他の法令に基づいて無効と判断された場合であっても、本利用規約のその他の規定は有効とします。</li>
+                            <li class="otherList_item">本利用規約の一部が特定のユーザーとの関係で無効又は執行不能と判断された場合であっても、本利用規約は他のユーザーとの関係では有効とします。</li>
+                        </ol>
+                    </section>
+
+                </section>
+            </main>
+
+            <footer class="footer" id="footer">
+                <div class="footer_inner">
+                    <div class="app">
+                        <p class="footerCategory_title">当サイトはプライバシー保護のためSSL暗号化通信を使用しています。</p>
+                    </div>
+                    <div class="footerCategory_box">
+                        <p class="footerCategory_lead">各種ギフト券・ギフトカードの商標・ロゴは各種ギフト券の権利所有者、またはその関連会社の商標です。</p>
+                        <ul class="footerCategory_list">
+                            <li class="footerCategory_item">
+                                Amazonギフト
+                            </li>
+                            <li class="footerCategory_item">
+                                楽天ギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Appleギフトカード/App Store &amp; iTunesギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                アップルストアギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Google Playカード
+                            </li>
+                            <li class="footerCategory_item">
+                                LINEプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                nanacoギフト
+                            </li>
+                            <li class="footerCategory_item">
+                                NET CASH（ネットキャッシュ）
+                            </li>
+                            <li class="footerCategory_item">
+                                ANA株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                JAL株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                スターフライヤー株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                Netflixプリペイド・ギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Huluチケット
+                            </li>
+                            <li class="footerCategory_item">
+                                U-NEXTギフトコード
+                            </li>
+                            <li class="footerCategory_item">
+                                WebMoneyギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                ニンテンドープリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                プレイステーションストアカード
+                            </li>
+                            <li class="footerCategory_item">
+                                ナイキギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                モバコインカード
+                            </li>
+                            <li class="footerCategory_item">
+                                GREEプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                DMMプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                DMMポイントコード
+                            </li>
+                            <li class="footerCategory_item">
+                                ビットキャッシュ（BitCash）
+                            </li>
+                            <li class="footerCategory_item">
+                                レコチョクプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                XBOXプリペイドカード/Windowsストアプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Skypeプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                バナコインプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Amebaプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                JCBプレモカード
+                            </li>
+                            <li class="footerCategory_item">
+                                LINEギフトコード
+                            </li>
+                            <li class="footerCategory_item">
+                                楽天ポイントギフトカード
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pagetop_sp sp-show">
+                    <a href="javascript:void(0);"><img src="./image/pagetop_sp.png" class="pagetop_spImg" alt="ページの先頭へ"></a>
+                </div>
+                <div class="footerNavi">
+                    <div class="footer_inner">
+                        <ul class="footerNavi_menu">
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/LawRecorded.html">法的記載事項</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/TermsOfService.html">利用規約</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/CompanyInformation.html">会社概要</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/Privacy.html">プライバシーポリシー</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/Inquiry.html">お問い合わせ</a>
+                            </li>
+                        </ul>
+                        <div class="footerNavi_logo"><img src="./image/footer_logo.png" class="footerNavi_logoImg" alt="DAYNEEDS"></div>
+                        <p class="copyright"><small class="copyright_text">©J.V.HOLDINGS 株式会社</small></p>
+                    </div>
+                </div>
+            </footer>
+        </div><div class="loading"></div>
+    </div>
+
+
+
+    <div id="mm-blocker"></div><div id="topcontrol" title="Scroll Back to Top" style="position: fixed; bottom: 124px; left: auto; right: 5px; opacity: 0; cursor: pointer; z-index: 100;"><img src="./image/pagetop.png" alt="ページの先頭へ"></div>
+</body>
+</html>

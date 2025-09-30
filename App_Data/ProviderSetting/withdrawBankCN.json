@@ -1,0 +1,92 @@
+﻿{
+  "BankCodeSettings": [
+    {
+      "BankName": "中国人民银行",
+      "BankCode": "PBOCCNBJ"
+    },
+    {
+      "BankName": "国家开发银行",
+      "BankCode": "SDBCCNBJ"
+    },
+    {
+      "BankName": "中国进出口银行",
+      "BankCode": "EIBCCNBJ"
+    },
+    {
+      "BankName": "中国农业发展银行",
+      "BankCode": "ADBNCNBJ"
+    },
+    {
+      "BankName": "交通银行",
+      "BankCode": "COMMCNSH"
+    },
+    {
+      "BankName": "中国银行",
+      "BankCode": "BKCHCNBJ"
+    },
+    {
+      "BankName": "中国建设银行",
+      "BankCode": "PCBCCNBJ"
+    },
+    {
+      "BankName": "中国农业银行",
+      "BankCode": "ABOCCNBJ"
+    },
+    {
+      "BankName": "中国工商银行",
+      "BankCode": "ICBKCNBJ"
+    },
+    {
+      "BankName": "中国邮政储蓄银行",
+      "BankCode": "PSBCCNBJ"
+    },
+    {
+      "BankName": "中国光大银行",
+      "BankCode": "EVERCNBJ"
+    },
+    {
+      "BankName": "中国民生银行",
+      "BankCode": "MSBCCNBJ"
+    },
+    {
+      "BankName": "招商银行",
+      "BankCode": "CMBCCNBS"
+    },
+    {
+      "BankName": "中信银行",
+      "BankCode": "CIBKCNBJ"
+    },
+    {
+      "BankName": "华夏银行",
+      "BankCode": "HXBKCNBJ"
+    },
+    {
+      "BankName": "上海浦东发展银行",
+      "BankCode": "SPDBCNSH"
+    },
+    {
+      "BankName": "平安银行",
+      "BankCode": "SZDBCNBS"
+    },
+    {
+      "BankName": "广发银行",
+      "BankCode": "GDBKCN22"
+    },
+    {
+      "BankName": "兴业银行",
+      "BankCode": "FJIBCNBA"
+    },
+    {
+      "BankName": "浙商银行",
+      "BankCode": "ZJCBCN2N"
+    },
+    {
+      "BankName": "渤海银行",
+      "BankCode": "CHBHCNBT"
+    },
+    {
+      "BankName": "恒丰银行",
+      "BankCode": "HFBACNSD"
+    }
+  ]
+}

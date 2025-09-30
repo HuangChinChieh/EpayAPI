@@ -1,0 +1,68 @@
+﻿@{ 
+    string PaymentSerial;
+    System.Data.DataTable DT = null;
+    string providerUrl = "";
+    string errorMsg = "";
+
+
+    if (!string.IsNullOrEmpty(Request.Params["PaymentSerial"].ToString()))
+    {
+        PaymentSerial = Request.Params["PaymentSerial"].ToString();
+
+        DT = PayDB.GetPaymentByPaymentID(PaymentSerial);
+
+        if (DT != null && DT.Rows.Count > 0)
+        {
+
+            var PaymentModel = GatewayCommon.ToList<GatewayCommon.Payment>(DT).FirstOrDefault();
+            var providerRequestData = GatewayCommon.GetProviderRequestData2(PaymentModel);
+            if (!string.IsNullOrEmpty(providerRequestData.ProviderUrl))
+            {
+                providerUrl = providerRequestData.ProviderUrl;
+            }
+            else
+            {
+                errorMsg = "Incorrect information provided by suppliers!";
+            }
+        }
+        else
+        {
+            errorMsg = "Order not exist";
+            PayDB.InsertDownOrderTransferLog(errorMsg, 0, "", PaymentSerial, "", true);
+        }
+    }
+    else
+    {
+        errorMsg = "Order not exist!";
+        PayDB.InsertDownOrderTransferLog(errorMsg, 0, "", "", "", true);
+    }
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    @if (!string.IsNullOrEmpty(providerUrl))
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                document.getElementById("PostForm").submit();
+            }
+        </script>
+    }
+</head>
+<body>
+    @if (!string.IsNullOrEmpty(providerUrl))
+    {
+        <form id="PostForm" method="post" action="@providerUrl">
+            <!-- 這裡如果需要傳參數，可以用 hidden input -->
+            <!--<input type="hidden" name="xxx" value="yyy" />-->
+        </form>
+    }
+    else
+    {
+        <div style="color:red;font-weight:bold;">
+            @errorMsg
+        </div>
+    }
+</body>
+</html>

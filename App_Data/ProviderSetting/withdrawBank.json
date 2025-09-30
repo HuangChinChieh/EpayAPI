@@ -1,0 +1,120 @@
+﻿{
+  "BankCodeSettings": [
+    {
+      "BankName": "日本銀行",
+      "HeroPay": "JPT0000"
+    },
+    {
+      "BankName": "株式会社みずほ銀行",
+      "HeroPay": "JPT0001"
+    },
+    {
+      "BankName": "株式会社三菱東京UFJ銀行",
+      "HeroPay": "JPT0005"
+    },
+    {
+      "BankName": "株式会社三井住友銀行",
+      "HeroPay": "JPT0009"
+    },
+    {
+      "BankName": "株式会社りそな銀行",
+      "HeroPay": "JPT0010"
+    },
+    {
+      "BankName": "株式会社埼玉りそな銀行",
+      "HeroPay": "JPT0017"
+    },
+    {
+      "BankName": "PayPay銀行",
+      "HeroPay": "JPT0033"
+    },
+    {
+      "BankName": "株式会社北海道銀行",
+      "HeroPay": "JPT0116"
+    },
+    {
+      "BankName": "株式会社青森銀行",
+      "HeroPay": "JPT0117"
+    },
+    {
+      "BankName": "株式会社みちのく銀行",
+      "HeroPay": "JPT0118"
+    },
+    {
+      "BankName": "株式会社秋田銀行",
+      "HeroPay": "JPT0119"
+    },
+    {
+      "BankName": "株式会社北都銀行",
+      "HeroPay": "JPT0120"
+    },
+    {
+      "BankName": "株式会社荘内銀行",
+      "HeroPay": "JPT0121"
+    },
+    {
+      "BankName": "株式会社山形銀行",
+      "HeroPay": "JPT0122"
+    },
+    {
+      "BankName": "株式会社岩手銀行",
+      "HeroPay": "JPT0123"
+    },
+    {
+      "BankName": "株式会社東北銀行",
+      "HeroPay": "JPT0124"
+    },
+    {
+      "BankName": "株式会社七十七銀行",
+      "HeroPay": "JPT0125"
+    },
+    {
+      "BankName": "株式会社東邦銀行",
+      "HeroPay": "JPT0126"
+    },
+    {
+      "BankName": "株式会社群馬銀行",
+      "HeroPay": "JPT0128"
+    },
+    {
+      "BankName": "株式会社足利銀行",
+      "HeroPay": "JPT0129"
+    },
+    {
+      "BankName": "株式会社常陽銀行",
+      "HeroPay": "JPT0130"
+    },
+    {
+      "BankName": "株式会社筑波銀行",
+      "HeroPay": "JPT0131"
+    },
+    {
+      "BankName": "株式会社武蔵野銀行",
+      "HeroPay": "JPT0133"
+    },
+    {
+      "BankName": "株式会社千葉銀行",
+      "HeroPay": "JPT0134"
+    },
+    {
+      "BankName": "株式会社千葉興業銀行",
+      "HeroPay": "JPT0135"
+    },
+    {
+      "BankName": "株式会社東京都民銀行",
+      "HeroPay": "JPT0137"
+    },
+    {
+      "BankName": "株式会社横浜銀行",
+      "HeroPay": "JPT0138"
+    },
+    {
+      "BankName": "株式会社第四銀行",
+      "HeroPay": "JPT0140"
+    },
+    {
+      "BankName": "ＧＭОあおぞらネット銀行",
+      "HeroPay": "JPT0398"
+    }
+  ]
+}

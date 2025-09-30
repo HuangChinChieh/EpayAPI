@@ -1,0 +1,29 @@
+﻿{
+  "ProviderCode": "LUMIPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://apigw.lumi68.com/api/v1/third-party/create-transactions",
+  "QueryOrderUrl": "https://apigw.lumi68.com/api/v1/third-party/transaction-queries",
+  "QueryBalanceUrl": "https://gwy-mgt.onew20.com/api/get/auth",
+  "MerchantCode": "LuckySprite",
+  "MerchantKey": "bK0Puo80hRg8ChFzjaw4JtnPIKbVfNMq",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/LUMIPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "https://apigw.lumi68.com/api/v1/third-party/agency-withdraws",
+  "WithdrawNotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/LUMIPayWithdrawNotify",
+  "QueryWithdrawUrl": "https://apigw.lumi68.com/api/v1/third-party/withdraw-queries",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "18.167.37.172"
+  ],
+  "ServiceSettings": [
+    { //Ggach原生
+      "ServiceType": "ALP17",
+      "TradeType": "8002"
+    }
+  ],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": null,
+  "BankCodeSettings": []
+}

@@ -1,0 +1,38 @@
+﻿{
+  "ProviderCode": "ryuta",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://ryuta.online/api/v1/transactions",
+  "QueryOrderUrl": "https://ryuta.online/api/v1/transactions/",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "Q002",
+  "MerchantKey": "vGicruCec6Wic4owaYSkRJ82HNKCpPGy9iv3qTzgEuOcyldhOvOfrANo9dIH",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/ryutaNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "https://ryuta.online/api/v1/payments",
+  "WithdrawNotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/ryutaWithdrawNotify",
+  "QueryWithdrawUrl": "https://ryuta.online/api/v1/payments/",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "dpiAO1hGh7peEp2N9fAWGxeMJBGTiDJmH3PYpNpV1t6wDNRqlLS4ujSZNWRg",
+  "ProviderIP": [
+    "192.168.143.98",
+"192.168.24.68"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "TWD001",
+      "TradeType": "credit_card"
+    },
+    {
+      "ServiceType": "TWD002",
+      "TradeType": "atm"
+    },
+    {
+      "ServiceType": "TWD003",
+      "TradeType": "cvs"
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

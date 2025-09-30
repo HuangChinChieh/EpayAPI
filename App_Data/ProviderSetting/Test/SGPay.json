@@ -1,0 +1,29 @@
+﻿{
+  "ProviderCode": "SGPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://api.sgpay.pro",
+  "QueryOrderUrl": "https://ucpays.net/api/deposit-queries",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "uruspay",
+  "MerchantKey": "FDLVIaF",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/SGPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "35.221.251.166"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "OT004",
+      "TradeType": "ewallet1"
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": [ "uruspay@sgpay.io", "OhajaWk5eE" ]
+}

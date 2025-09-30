@@ -1,0 +1,33 @@
+﻿{
+  "ProviderCode": "ucpay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://ucpays.net/api/deposits",
+  "QueryOrderUrl": "https://ucpays.net/api/deposit-queries",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "20240402155755172823",
+  "MerchantKey": "3ad11292e3b9bdc743d0bf1909c2ea16ee5e7753a4998799584414a37e5a3e37",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/ucpayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "52.198.23.39"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "ALP22",
+      "TradeType": "QR_ALIPAY"
+    },
+    {
+      "ServiceType": "ALP23",
+      "TradeType": "WAP_ALIPAY"
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

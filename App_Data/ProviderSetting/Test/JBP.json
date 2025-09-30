@@ -1,0 +1,30 @@
+﻿{
+  "ProviderCode": "JBP",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://api.jbp-pay.com/apply/Deposit",
+  "QueryOrderUrl": "https://api.jbp-pay.com/Query/OrderInquiry",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "1499",
+  "MerchantKey": "a0cd5d40bb357c7d199d0bb07f2547f3",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/JBPNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "https://api.jbp-pay.com/apply/Withdraw",
+  "WithdrawNotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/JBPWithdrawNotify",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "23.99.118.98",
+    "52.184.32.104"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "BNK01",
+      "TradeType": 2
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

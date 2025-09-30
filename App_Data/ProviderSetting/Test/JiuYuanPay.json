@@ -1,0 +1,694 @@
+﻿{
+  "ProviderCode": "JiuYuanPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://pay39.jiuyuanpay8.com/Pay",
+  "QueryOrderUrl": "https://pay39.jiuyuanpay8.com/Pay/queryorder/dfcx",
+  "QueryBalanceUrl": "https://pay39.jiuyuanpay8.com/Pay",
+  "MerchantCode": "283",
+  "MerchantKey": "HNuyLHsjHLrAzcxYeOkWMTbksdkTeJoX",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/JiuYuanPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "https://pay39.jiuyuanpay8.com/Pay",
+  "WithdrawNotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/JiuYuanPayWithdrawNotify",
+  "QueryWithdrawUrl": "https://pay39.jiuyuanpay8.com/Pay",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "3.115.124.49"
+  ],
+  "ServiceSettings": [
+    { //Ggach原生
+      "ServiceType": "JOOB09",
+      "TradeType": "94001"
+    }
+  ],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": null,
+  "BankCodeSettings": [
+    {
+      "BankCode": "JPT0001",
+      "BankName": "瑞穗銀行"
+    },
+    {
+      "BankCode": "JPT0005",
+      "BankName": "三菱日聯銀行"
+    },
+    {
+      "BankCode": "JPT0009",
+      "BankName": "三井住友銀行"
+    },
+    {
+      "BankCode": "JPT0010",
+      "BankName": "里索那銀行"
+    },
+    {
+      "BankCode": "JPT0017",
+      "BankName": "埼玉里索那銀行"
+    },
+    {
+      "BankCode": "JPT0033",
+      "BankName": "PayPay银行"
+    },
+    {
+      "BankCode": "JPT0034",
+      "BankName": "セブン銀行"
+    },
+    {
+      "BankCode": "JPT0035",
+      "BankName": "索尼銀行"
+    },
+    {
+      "BankCode": "JPT0036",
+      "BankName": "楽天銀行"
+    },
+    {
+      "BankCode": "JPT0038",
+      "BankName": "住信SBI網絡銀行"
+    },
+    {
+      "BankCode": "JPT0039",
+      "BankName": "Jibun Bank"
+    },
+    {
+      "BankCode": "JPT0040",
+      "BankName": "イオン銀行"
+    },
+    {
+      "BankCode": "JPT0041",
+      "BankName": "大和ネクスト銀行"
+    },
+    {
+      "BankCode": "JPT0042",
+      "BankName": "ローソン銀行"
+    },
+    {
+      "BankCode": "JPT0043",
+      "BankName": "みんなの銀行"
+    },
+    {
+      "BankCode": "JPT0044",
+      "BankName": "UI 銀行"
+    },
+    {
+      "BankCode": "JPT0116",
+      "BankName": "北海道銀行"
+    },
+    {
+      "BankCode": "JPT0117",
+      "BankName": "青森銀行"
+    },
+    {
+      "BankCode": "JPT0118",
+      "BankName": "陸奧銀行"
+    },
+    {
+      "BankCode": "JPT0119",
+      "BankName": "秋田銀行"
+    },
+    {
+      "BankCode": "JPT0120",
+      "BankName": "北都銀行"
+    },
+    {
+      "BankCode": "JPT0121",
+      "BankName": "荘内銀行"
+    },
+    {
+      "BankCode": "JPT0122",
+      "BankName": "山形銀行"
+    },
+    {
+      "BankCode": "JPT0123",
+      "BankName": "岩手銀行"
+    },
+    {
+      "BankCode": "JPT0124",
+      "BankName": "東北銀行"
+    },
+    {
+      "BankCode": "JPT0125",
+      "BankName": "七十七銀行"
+    },
+    {
+      "BankCode": "JPT0126",
+      "BankName": "東邦銀行"
+    },
+    {
+      "BankCode": "JPT0128",
+      "BankName": "群馬銀行"
+    },
+    {
+      "BankCode": "JPT0129",
+      "BankName": "足利銀行"
+    },
+    {
+      "BankCode": "JPT0130",
+      "BankName": "常陽銀行"
+    },
+    {
+      "BankCode": "JPT0131",
+      "BankName": "筑波銀行"
+    },
+    {
+      "BankCode": "JPT0133",
+      "BankName": "武蔵野銀行"
+    },
+    {
+      "BankCode": "JPT0134",
+      "BankName": "千葉銀行"
+    },
+    {
+      "BankCode": "JPT0135",
+      "BankName": "千葉興業銀行"
+    },
+    {
+      "BankCode": "JPT0137",
+      "BankName": "東京都民銀行"
+    },
+    {
+      "BankCode": "JPT0138",
+      "BankName": "横浜銀行"
+    },
+    {
+      "BankCode": "JPT0140",
+      "BankName": "第四北越銀行"
+    },
+    {
+      "BankCode": "JPT0142",
+      "BankName": "山梨中央銀行"
+    },
+    {
+      "BankCode": "JPT0143",
+      "BankName": "八十二銀行"
+    },
+    {
+      "BankCode": "JPT0144",
+      "BankName": "北陸銀行"
+    },
+    {
+      "BankCode": "JPT0146",
+      "BankName": "北國銀行"
+    },
+    {
+      "BankCode": "JPT0147",
+      "BankName": "福井銀行"
+    },
+    {
+      "BankCode": "JPT0149",
+      "BankName": "静岡銀行"
+    },
+    {
+      "BankCode": "JPT0150",
+      "BankName": "Suruga Bank Ltd."
+    },
+    {
+      "BankCode": "JPT0151",
+      "BankName": "清水銀行"
+    },
+    {
+      "BankCode": "JPT0152",
+      "BankName": "大垣共立銀行"
+    },
+    {
+      "BankCode": "JPT0153",
+      "BankName": "十六銀行"
+    },
+    {
+      "BankCode": "JPT0154",
+      "BankName": "三十三銀行"
+    },
+    {
+      "BankCode": "JPT0155",
+      "BankName": "百五銀行"
+    },
+    {
+      "BankCode": "JPT0156",
+      "BankName": "宮崎銀行"
+    },
+    {
+      "BankCode": "JPT0157",
+      "BankName": "滋賀銀行"
+    },
+    {
+      "BankCode": "JPT0158",
+      "BankName": "京都銀行"
+    },
+    {
+      "BankCode": "JPT0159",
+      "BankName": "関西みらい銀行"
+    },
+    {
+      "BankCode": "JPT0161",
+      "BankName": "池田泉州銀行"
+    },
+    {
+      "BankCode": "JPT0162",
+      "BankName": "南都銀行"
+    },
+    {
+      "BankCode": "JPT0163",
+      "BankName": "紀陽銀行"
+    },
+    {
+      "BankCode": "JPT0164",
+      "BankName": "但馬銀行"
+    },
+    {
+      "BankCode": "JPT0166",
+      "BankName": "鳥取銀行"
+    },
+    {
+      "BankCode": "JPT0167",
+      "BankName": "山陰合同銀行"
+    },
+    {
+      "BankCode": "JPT0168",
+      "BankName": "中国銀行"
+    },
+    {
+      "BankCode": "JPT0169",
+      "BankName": "広島銀行"
+    },
+    {
+      "BankCode": "JPT0170",
+      "BankName": "山口銀行"
+    },
+    {
+      "BankCode": "JPT0172",
+      "BankName": "阿波銀行"
+    },
+    {
+      "BankCode": "JPT0173",
+      "BankName": "百十四銀行"
+    },
+    {
+      "BankCode": "JPT0174",
+      "BankName": "伊予銀行"
+    },
+    {
+      "BankCode": "JPT0175",
+      "BankName": "四国銀行"
+    },
+    {
+      "BankCode": "JPT0177",
+      "BankName": "福岡銀行"
+    },
+    {
+      "BankCode": "JPT0178",
+      "BankName": "筑邦銀行"
+    },
+    {
+      "BankCode": "JPT0179",
+      "BankName": "佐賀銀行"
+    },
+    {
+      "BankCode": "JPT0181",
+      "BankName": "十八親和銀行"
+    },
+    {
+      "BankCode": "JPT0182",
+      "BankName": "肥後銀行"
+    },
+    {
+      "BankCode": "JPT0183",
+      "BankName": "大分銀行"
+    },
+    {
+      "BankCode": "JPT0185",
+      "BankName": "鹿児島銀行"
+    },
+    {
+      "BankCode": "JPT0187",
+      "BankName": "琉球銀行"
+    },
+    {
+      "BankCode": "JPT0188",
+      "BankName": "沖縄銀行"
+    },
+    {
+      "BankCode": "JPT0190",
+      "BankName": "西日本都市銀行"
+    },
+    {
+      "BankCode": "JPT0191",
+      "BankName": "北九州銀行"
+    },
+    {
+      "BankCode": "JPT0397",
+      "BankName": "新生銀行"
+    },
+    {
+      "BankCode": "JPT0398",
+      "BankName": "GMO青空网上银行"
+    },
+    {
+      "BankCode": "JPT9900",
+      "BankName": "郵貯銀行"
+    },
+    {
+      "BankCode": "JPT0472",
+      "BankName": "SBJ銀行"
+    },
+    {
+      "BankCode": "JPT0288",
+      "BankName": "三菱日聯信託銀行"
+    },
+    {
+      "BankCode": "JPT0289",
+      "BankName": "瑞穗信託銀行 (みずほ信託銀行)"
+    },
+    {
+      "BankCode": "JPT0294",
+      "BankName": "三井住友信託銀行"
+    },
+    {
+      "BankCode": "JPT0297",
+      "BankName": "日本Master Trust信託銀行"
+    },
+    {
+      "BankCode": "JPT0300",
+      "BankName": "SMBC信託銀行"
+    },
+    {
+      "BankCode": "JPT0304",
+      "BankName": "野村信托銀行"
+    },
+    {
+      "BankCode": "JPT0307",
+      "BankName": "ORIX Bank Corporation"
+    },
+    {
+      "BankCode": "JPT0309",
+      "BankName": "信金信託銀行"
+    },
+    {
+      "BankCode": "JPT0310",
+      "BankName": "あおぞら銀行"
+    },
+    {
+      "BankCode": "JPT0311",
+      "BankName": "農中信託銀行"
+    },
+    {
+      "BankCode": "JPT0322",
+      "BankName": "新銀行東京"
+    },
+    {
+      "BankCode": "JPT0325",
+      "BankName": "日本カストディ銀行"
+    },
+    {
+      "BankCode": "JPT0401",
+      "BankName": "花旗銀行"
+    },
+    {
+      "BankCode": "JPT0402",
+      "BankName": "大通銀行"
+    },
+    {
+      "BankCode": "JPT0411",
+      "BankName": "香港上海銀行"
+    },
+    {
+      "BankCode": "JPT0423",
+      "BankName": "韓亞銀行 (KEBハナ銀行)"
+    },
+    {
+      "BankCode": "JPT0443",
+      "BankName": "法國巴黎銀行"
+    },
+    {
+      "BankCode": "JPT0477",
+      "BankName": "友利銀行 (ウリィ銀行)"
+    },
+    {
+      "BankCode": "JPT0501",
+      "BankName": "北洋銀行"
+    },
+    {
+      "BankCode": "JPT0509",
+      "BankName": "北日本銀行"
+    },
+    {
+      "BankCode": "JPT0517",
+      "BankName": "栃木銀行"
+    },
+    {
+      "BankCode": "JPT0522",
+      "BankName": "京葉銀行"
+    },
+    {
+      "BankCode": "JPT0532",
+      "BankName": "大光銀行"
+    },
+    {
+      "BankCode": "JPT0534",
+      "BankName": "富山第一銀行"
+    },
+    {
+      "BankCode": "JPT0537",
+      "BankName": "福邦銀行"
+    },
+    {
+      "BankCode": "JPT0542",
+      "BankName": "愛知銀行"
+    },
+    {
+      "BankCode": "JPT0543",
+      "BankName": "名古屋銀行"
+    },
+    {
+      "BankCode": "JPT0544",
+      "BankName": "中京銀行"
+    },
+    {
+      "BankCode": "JPT0562",
+      "BankName": "みなと銀行"
+    },
+    {
+      "BankCode": "JPT0569",
+      "BankName": "もみじ銀行"
+    },
+    {
+      "BankCode": "JPT0570",
+      "BankName": "西京銀行"
+    },
+    {
+      "BankCode": "JPT0573",
+      "BankName": "香川銀行"
+    },
+    {
+      "BankCode": "JPT0576",
+      "BankName": "愛媛銀行"
+    },
+    {
+      "BankCode": "JPT0587",
+      "BankName": "熊本銀行"
+    },
+    {
+      "BankCode": "JPT1020",
+      "BankName": "旭川信用金庫"
+    },
+    {
+      "BankCode": "JPT1028",
+      "BankName": "大地みらい信用金庫"
+    },
+    {
+      "BankCode": "JPT1250",
+      "BankName": "埼玉縣信用金庫"
+    },
+    {
+      "BankCode": "JPT1260",
+      "BankName": "千葉信用金庫"
+    },
+    {
+      "BankCode": "JPT1282",
+      "BankName": "湘南信用金庫"
+    },
+    {
+      "BankCode": "JPT1283",
+      "BankName": "川崎信用金庫"
+    },
+    {
+      "BankCode": "JPT1341",
+      "BankName": "西武信用金庫"
+    },
+    {
+      "BankCode": "JPT1356",
+      "BankName": "巣鴨信用金庫"
+    },
+    {
+      "BankCode": "JPT1360",
+      "BankName": "多摩信用金庫"
+    },
+    {
+      "BankCode": "JPT1393",
+      "BankName": "諏訪信用金庫"
+    },
+    {
+      "BankCode": "JPT1501",
+      "BankName": "しずおか焼津信用金庫"
+    },
+    {
+      "BankCode": "JPT1502",
+      "BankName": "静清信用金庫"
+    },
+    {
+      "BankCode": "JPT1530",
+      "BankName": "岐阜信用金庫"
+    },
+    {
+      "BankCode": "JPT1552",
+      "BankName": "岡崎信用金庫"
+    },
+    {
+      "BankCode": "JPT1553",
+      "BankName": "いちい信用金庫"
+    },
+    {
+      "BankCode": "JPT1557",
+      "BankName": "豊川信用金庫"
+    },
+    {
+      "BankCode": "JPT1559",
+      "BankName": "豊田信用金庫"
+    },
+    {
+      "BankCode": "JPT1560",
+      "BankName": "碧海信用金庫"
+    },
+    {
+      "BankCode": "JPT1581",
+      "BankName": "北伊勢上野信用金庫"
+    },
+    {
+      "BankCode": "JPT1604",
+      "BankName": "湖東信用金庫"
+    },
+    {
+      "BankCode": "JPT1610",
+      "BankName": "京都信用金庫"
+    },
+    {
+      "BankCode": "JPT1611",
+      "BankName": "京都中央信用金庫"
+    },
+    {
+      "BankCode": "JPT1635",
+      "BankName": "大阪シティ信用金庫"
+    },
+    {
+      "BankCode": "JPT1656",
+      "BankName": "枚方信用金庫"
+    },
+    {
+      "BankCode": "JPT1674",
+      "BankName": "きのくに信用金庫"
+    },
+    {
+      "BankCode": "JPT1691",
+      "BankName": "淡路信用金庫"
+    },
+    {
+      "BankCode": "JPT1696",
+      "BankName": "但陽信用金庫"
+    },
+    {
+      "BankCode": "JPT1702",
+      "BankName": "米子信用金庫"
+    },
+    {
+      "BankCode": "JPT1830",
+      "BankName": "高松信用金庫"
+    },
+    {
+      "BankCode": "JPT1954",
+      "BankName": "熊本中央信用金庫"
+    },
+    {
+      "BankCode": "JPT1960",
+      "BankName": "大分信用金庫"
+    },
+    {
+      "BankCode": "JPT2274",
+      "BankName": "東京消防信用組合"
+    },
+    {
+      "BankCode": "JPT2411",
+      "BankName": "金沢中央信用組合"
+    },
+    {
+      "BankCode": "JPT2954",
+      "BankName": "東北労働金庫"
+    },
+    {
+      "BankCode": "JPT2963",
+      "BankName": "中央労働金庫"
+    },
+    {
+      "BankCode": "JPT2968",
+      "BankName": "静岡県労働金庫"
+    },
+    {
+      "BankCode": "JPT2972",
+      "BankName": "東海労働金庫"
+    },
+    {
+      "BankCode": "JPT2978",
+      "BankName": "近畿労働金庫"
+    },
+    {
+      "BankCode": "JPT2984",
+      "BankName": "中国労働金庫"
+    },
+    {
+      "BankCode": "JPT2987",
+      "BankName": "四国労働金庫"
+    },
+    {
+      "BankCode": "JPT2990",
+      "BankName": "九州労働金庫"
+    },
+    {
+      "BankCode": "JPT4196",
+      "BankName": "福島さくら農業協同組合"
+    },
+    {
+      "BankCode": "JPT5131",
+      "BankName": "さがみ農業協同組合"
+    },
+    {
+      "BankCode": "JPT6606",
+      "BankName": "蒲郡市農業協同組合"
+    },
+    {
+      "BankCode": "JPT6612",
+      "BankName": "ひまわり農業協同組合"
+    },
+    {
+      "BankCode": "JPT6677",
+      "BankName": "みえなか農業協同組合"
+    },
+    {
+      "BankCode": "JPT6874",
+      "BankName": "レーク滋賀農業協同組合"
+    },
+    {
+      "BankCode": "JPT7032",
+      "BankName": "茨木市農業協同組合"
+    },
+    {
+      "BankCode": "JPT7576",
+      "BankName": "紀南農業協同組合"
+    },
+    {
+      "BankCode": "JPT8551",
+      "BankName": "高知市農業協同組合"
+    },
+    {
+      "BankCode": "JPT8941",
+      "BankName": "鹿本農業協同組合"
+    }
+  ]
+}

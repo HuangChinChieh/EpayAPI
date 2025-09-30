@@ -1,0 +1,30 @@
+﻿{
+  "ProviderCode": "wanliuPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "http://wanliu.rich888.vip/api/newOrder",
+  "QueryOrderUrl": "http://wanliu.rich888.vip/api/queryOrder",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "10049",
+  "MerchantKey": "751355e2507096b3952b64d69539dcb0",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/wanliuPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/wanliuPayWithdrawNotify",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "52.69.144.221",
+    "192.168.24.65"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "WXP03",
+      "TradeType": 8004
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

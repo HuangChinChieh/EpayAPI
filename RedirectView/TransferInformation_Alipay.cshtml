@@ -1,0 +1,188 @@
+﻿@{
+    string PaymentSerial;
+    System.Data.DataTable DT = null;
+    GatewayCommon.Payment paymentModel;
+    GatewayCommon.ProviderRequestData providerRequestData = new GatewayCommon.ProviderRequestData();
+    string qrcodeContent = string.Empty;
+
+    if (!string.IsNullOrEmpty(Request.Params["PaymentSerial"].ToString())) {
+        PaymentSerial = Request.Params["PaymentSerial"].ToString();
+
+        DT = PayDB.GetPaymentBankCardDetail(PaymentSerial);
+
+        if (DT != null && DT.Rows.Count > 0) {
+            qrcodeContent = (string)DT.Rows[0]["Description"];
+        } else {
+            PayDB.InsertDownOrderTransferLog("无法确认订单", 0, "", PaymentSerial, "", true);
+        }
+    } else {
+        PayDB.InsertDownOrderTransferLog("订单创建失败。", 0, "", "", "", true);
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>入金申請完了</title>
+    <meta name="description" content="">
+
+
+    <link rel="shortcut icon" href="image/icon.ico">
+    <link rel="stylesheet" href="./css/style.css?11">
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="css/jquery.bxslider.css" rel="stylesheet" />
+    <link href="css/jquery.mmenu.css" rel="stylesheet" />
+    <link href="../css/sweetalert2.min.css" rel="stylesheet" />
+
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.mmenu.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/datepicker-ja.js"></script>
+    <script src="./js/fnc_common.js"></script>
+    <script src="js/ShopAPI.js"></script>
+    <script src="js/Math.uuid.js"></script>
+    <script src="../Scripts/sweetalert2.min.js"></script>
+    <script src="js/scrolltopcontrol.js"></script>
+    <style>
+        .swal-wide {
+            width: 850px !important;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            color: #4C535A;
+            border: 1px solid #ccc;
+            background: #F6F6F7;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .alipay-card {
+            width: 90%;
+            max-width: 420px; 
+            height: 70vh; 
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .alipay-header {
+            background-color: #fff;
+            text-align: center;
+            padding: 15px 10px;
+        }
+
+        .alipay-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .alipay-logo {
+            width: 50px;
+            margin-right: 6px;
+        }
+
+        .alipay-title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .alipay-body {
+            flex: 1;
+            background-color: #1677ff;
+            text-align: center;
+            padding: 20px 10px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .alipay-subtitle {
+            font-size: 35px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .qr-box {
+            background-color: white;
+            border-radius: 6px;
+            padding: 12px;
+            width: 70%;
+            max-width: 260px;
+            margin: 0 auto;
+            margin-top:80px;
+        }
+
+        .qr-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+        }
+
+            .qr-placeholder img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+        .alipay-footer {
+            margin-top: 12px;
+            font-size: 18px;
+        }
+    </style>
+
+    <script>
+    
+    </script>
+</head>
+<body style="">
+    <div class="alipay-card">
+        <!-- 上半部白色 -->
+        <div class="alipay-header">
+            <div class="alipay-header-top">
+                <img src="~/RedirectView/image/alipay.jpg" class="alipay-logo" alt="logo">
+                <div class="alipay-title">支付寶</div>
+            </div>
+        </div>
+
+        <!-- 下半部藍色 -->
+        <div class="alipay-body">
+            <div>
+                <div class="alipay-subtitle">推薦使用支付寶</div>
+                <div class="qr-box">
+                    <div class="qr-placeholder">
+                        <img id="qrcodeImg" src="../GetQRCode.aspx?Download=2&QRCode=@HttpUtility.UrlEncode(qrcodeContent)" />
+                    </div>
+                </div>
+            </div>
+            <div class="alipay-footer">打開支付寶 [掃一掃]</div>
+        </div>
+    </div>
+</body>
+</html>

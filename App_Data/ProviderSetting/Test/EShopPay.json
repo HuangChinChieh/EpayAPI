@@ -1,0 +1,26 @@
+﻿{
+  "ProviderCode": "EShopPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "http://eshoppay.dev.mts.idv.tw/Payment/CreatePayment.aspx",
+  "QueryOrderUrl": "",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "demo_TestStore",
+  "MerchantKey": "264680f8-9d5f-4ffa-9dbf-89e9f5f48612",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/EShopPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "http://eshoppay.dev.mts.idv.tw/Payment/CreateWithdrawal.aspx",
+  "WithdrawNotifyAsyncUrl": "",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "172.16.16.34"
+  ],
+  "ServiceSettings": [
+
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

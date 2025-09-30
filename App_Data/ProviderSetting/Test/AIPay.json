@@ -1,0 +1,29 @@
+﻿{
+  "ProviderCode": "AIPay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://tsapi.aipayzf.xyz/api/v1/payment/init",
+  "QueryOrderUrl": "https://tsapi.aipayzf.xyz/api/v1/payment/query",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "1000",
+  "MerchantKey": "kyssAu6WD64q5G1OY2nSQ3k",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/AIPayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "",
+  "QueryWithdrawUrl": "",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "43.129.88.196"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "WXP03",
+      "TradeType": "P0000"
+    }
+  ],
+  "BankCodeSettings": [],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": []
+}

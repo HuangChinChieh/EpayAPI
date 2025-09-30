@@ -1,0 +1,380 @@
+﻿{
+  "BankCodeSettings": [
+    {
+      "BankName": "中央信託",
+      "BankCode": "001"
+    },
+    {
+      "BankName": "農民銀行",
+      "BankCode": "002"
+    },
+    {
+      "BankName": "交通銀行",
+      "BankCode": "003"
+    },
+    {
+      "BankName": "台灣銀行",
+      "BankCode": "004"
+    },
+    {
+      "BankName": "土地銀行",
+      "BankCode": "005"
+    },
+    {
+      "BankName": "合庫銀行",
+      "BankCode": "006"
+    },
+    {
+      "BankName": "第一銀行",
+      "BankCode": "007"
+    },
+    {
+      "BankName": "華南銀行",
+      "BankCode": "008"
+    },
+    {
+      "BankName": "彰化銀行",
+      "BankCode": "009"
+    },
+    {
+      "BankName": "華僑銀行",
+      "BankCode": "010"
+    },
+    {
+      "BankName": "上海銀行",
+      "BankCode": "011"
+    },
+    {
+      "BankName": "台北銀行",
+      "BankCode": "012"
+    },
+    {
+      "BankName": "世華銀行",
+      "BankCode": "013"
+    },
+    {
+      "BankName": "高雄銀行",
+      "BankCode": "016"
+    },
+    {
+      "BankName": "中國商銀",
+      "BankCode": "017"
+    },
+    {
+      "BankName": "花旗銀行",
+      "BankCode": "021"
+    },
+    {
+      "BankName": "運通銀行",
+      "BankCode": "024"
+    },
+    {
+      "BankName": "荷蘭銀行",
+      "BankCode": "039"
+    },
+    {
+      "BankName": "中華開發",
+      "BankCode": "040"
+    },
+    {
+      "BankName": "台灣企銀",
+      "BankCode": "050"
+    },
+    {
+      "BankName": "台北商銀",
+      "BankCode": "051"
+    },
+    {
+      "BankName": "新竹商銀",
+      "BankCode": "052"
+    },
+    {
+      "BankName": "台中商銀",
+      "BankCode": "053"
+    },
+    {
+      "BankName": "台南企銀",
+      "BankCode": "054"
+    },
+    {
+      "BankName": "高雄企銀",
+      "BankCode": "055"
+    },
+    {
+      "BankName": "花蓮企銀",
+      "BankCode": "056"
+    },
+    {
+      "BankName": "台東企銀",
+      "BankCode": "057"
+    },
+    {
+      "BankName": "匯豐銀行",
+      "BankCode": "081"
+    },
+    {
+      "BankName": "渣打銀行",
+      "BankCode": "083"
+    },
+    {
+      "BankName": "台北一信",
+      "BankCode": "101"
+    },
+    {
+      "BankName": "華泰銀行",
+      "BankCode": "102"
+    },
+    {
+      "BankName": "誠泰銀行",
+      "BankCode": "103"
+    },
+    {
+      "BankName": "台北五信",
+      "BankCode": "104"
+    },
+    {
+      "BankName": "台北九信",
+      "BankCode": "106"
+    },
+    {
+      "BankName": "陽信銀行",
+      "BankCode": "108"
+    },
+    {
+      "BankName": "基隆一信",
+      "BankCode": "114"
+    },
+    {
+      "BankName": "基隆二信",
+      "BankCode": "115"
+    },
+    {
+      "BankName": "板信銀行",
+      "BankCode": "118"
+    },
+    {
+      "BankName": "淡水一信",
+      "BankCode": "119"
+    },
+    {
+      "BankName": "淡水信合社",
+      "BankCode": "120"
+    },
+    {
+      "BankName": "宜蘭信合社",
+      "BankCode": "124"
+    },
+    {
+      "BankName": "桃園信合社",
+      "BankCode": "127"
+    },
+    {
+      "BankName": "新竹一信",
+      "BankCode": "130"
+    },
+    {
+      "BankName": "新竹三信",
+      "BankCode": "132"
+    },
+    {
+      "BankName": "新竹五信",
+      "BankCode": "133"
+    },
+    {
+      "BankName": "新竹十信",
+      "BankCode": "135"
+    },
+    {
+      "BankName": "竹南信合社",
+      "BankCode": "139"
+    },
+    {
+      "BankName": "豐原信合社",
+      "BankCode": "142"
+    },
+    {
+      "BankName": "台中二信",
+      "BankCode": "146"
+    },
+    {
+      "BankName": "三信銀行",
+      "BankCode": "147"
+    },
+    {
+      "BankName": "聯信銀行",
+      "BankCode": "150"
+    },
+    {
+      "BankName": "第七商銀",
+      "BankCode": "151"
+    },
+    {
+      "BankName": "彰化一信",
+      "BankCode": "158"
+    },
+    {
+      "BankName": "彰化五信",
+      "BankCode": "161"
+    },
+    {
+      "BankName": "彰化六信",
+      "BankCode": "162"
+    },
+    {
+      "BankName": "彰化十信",
+      "BankCode": "163"
+    },
+    {
+      "BankName": "鹿港信合社",
+      "BankCode": "165"
+    },
+    {
+      "BankName": "斗六信合社",
+      "BankCode": "172"
+    },
+    {
+      "BankName": "嘉義一信",
+      "BankCode": "176"
+    },
+    {
+      "BankName": "嘉義三信",
+      "BankCode": "178"
+    },
+    {
+      "BankName": "嘉義四信",
+      "BankCode": "179"
+    },
+    {
+      "BankName": "新營信合社",
+      "BankCode": "183"
+    },
+    {
+      "BankName": "台南三信",
+      "BankCode": "188"
+    },
+    {
+      "BankName": "台南六信",
+      "BankCode": "191"
+    },
+    {
+      "BankName": "台南七信",
+      "BankCode": "192"
+    },
+    {
+      "BankName": "鳳山信合社",
+      "BankCode": "198"
+    },
+    {
+      "BankName": "高新銀行",
+      "BankCode": "202"
+    },
+    {
+      "BankName": "高雄二信",
+      "BankCode": "203"
+    },
+    {
+      "BankName": "高雄三信",
+      "BankCode": "204"
+    },
+    {
+      "BankName": "花蓮一信",
+      "BankCode": "215"
+    },
+    {
+      "BankName": "花蓮二信",
+      "BankCode": "216"
+    },
+    {
+      "BankName": "台東信合社",
+      "BankCode": "219"
+    },
+    {
+      "BankName": "澎湖一信",
+      "BankCode": "222"
+    },
+    {
+      "BankName": "澎湖二信",
+      "BankCode": "223"
+    },
+    {
+      "BankName": "金門信合社",
+      "BankCode": "224"
+    },
+    {
+      "BankName": "郵匯局",
+      "BankCode": "700"
+    },
+    {
+      "BankName": "萬通銀行",
+      "BankCode": "801"
+    },
+    {
+      "BankName": "聯邦銀行",
+      "BankCode": "803"
+    },
+    {
+      "BankName": "中華銀行",
+      "BankCode": "804"
+    },
+    {
+      "BankName": "遠東銀行",
+      "BankCode": "805"
+    },
+    {
+      "BankName": "復華銀行",
+      "BankCode": "806"
+    },
+    {
+      "BankName": "建華銀行",
+      "BankCode": "807"
+    },
+    {
+      "BankName": "玉山銀行",
+      "BankCode": "808"
+    },
+    {
+      "BankName": "萬泰銀行",
+      "BankCode": "809"
+    },
+    {
+      "BankName": "泛亞銀行",
+      "BankCode": "810"
+    },
+    {
+      "BankName": "中興銀行",
+      "BankCode": "811"
+    },
+    {
+      "BankName": "台新銀行",
+      "BankCode": "812"
+    },
+    {
+      "BankName": "富邦銀行",
+      "BankCode": "813"
+    },
+    {
+      "BankName": "大眾銀行",
+      "BankCode": "814"
+    },
+    {
+      "BankName": "日盛銀行",
+      "BankCode": "815"
+    },
+    {
+      "BankName": "安泰銀行",
+      "BankCode": "816"
+    },
+    {
+      "BankName": "中國信託",
+      "BankCode": "822"
+    },
+    {
+      "BankName": "慶豐銀行",
+      "BankCode": "825"
+    },
+    {
+      "BankName": "國泰銀行",
+      "BankCode": "827"
+    }
+  ]
+}

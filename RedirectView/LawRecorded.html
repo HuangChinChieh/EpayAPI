@@ -1,0 +1,506 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>法的記載事項 </title>
+
+
+    <link rel="shortcut icon" href="image/icon.ico">
+    <link rel="stylesheet" href="./css/style.css?11">
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="css/jquery.bxslider.css" rel="stylesheet" />
+    <link href="css/jquery.mmenu.css" rel="stylesheet" />
+    <link href="../css/sweetalert2.min.css" rel="stylesheet" />
+
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.mmenu.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/datepicker-ja.js"></script>
+    <script src="./js/fnc_common.js"></script>
+    <script src="js/ShopAPI.js"></script>
+    <script src="js/Math.uuid.js"></script>
+    <script src="../Scripts/sweetalert2.min.js"></script>
+    <script src="js/scrolltopcontrol.js"></script>
+    <script>
+        var shopClient;
+        //購物車清單
+        var shoppingCartData = [];
+
+        function checkBaseInfo() {
+            var memberLoginState = window.sessionStorage.getItem("eShopPay_MemberLoginState");
+            var ShoppingCartData = window.sessionStorage.getItem("eShopPay_shoppingCartData");
+
+            if (memberLoginState) {
+                if (memberLoginState.toUpperCase() == "SUCCESS") {
+                    $("#nav_logined").show();
+                } else {
+                    $("#nav_unlogined").show();
+                }
+            } else {
+                $("#nav_unlogined").show();
+            }
+
+            if (ShoppingCartData) {
+                shoppingCartData = JSON.parse(ShoppingCartData);
+
+                if (shoppingCartData.length > 0) {
+                    for (var i = 0; i < shoppingCartData.length; i++) {
+                        let k = `<li class="cart_item">
+                                                                      <img src="${shoppingCartData[i].ImgUrl}" class="cart_itemImg" alt="">
+                                                                      <p class="cart_text">名前： <span class="cart_textNum">${shoppingCartData[i].Name}</span></p>
+                                                                      <p class="cart_text">額面： <span class="cart_textNum">${shoppingCartData[i].Price}</span></p>
+                                                                  <button class="cart_delBtn" onclick="removeShoppingCart()" data-price="${shoppingCartData[i].Price}" data-index="${shoppingCartData[i].Index}">削除</button>
+                                                                  </li>`;
+
+                        $("#div_ShoppingCart").append(k);
+                    }
+                    $(".cart_count").text(shoppingCartData.length);
+                }
+            }
+        }
+
+        function removeShoppingCart() {
+            let seleIndex = $(event.target).data("index");
+            let price = $(event.target).data("price");
+
+            let indexToRemove = shoppingCartData.findIndex(x => x.Index == seleIndex && x.Price == price);
+
+            if (indexToRemove !== -1) {
+                shoppingCartData.splice(indexToRemove, 1);
+                window.sessionStorage.setItem("eShopPay_shoppingCartData", JSON.stringify(shoppingCartData));
+            }
+            $(".cart_count").text(shoppingCartData.length);
+
+            $(event.target).parents(".cart_item").remove();
+        }
+
+        function removeAllShoppingCart() {
+            shoppingCartData = [];
+            window.sessionStorage.setItem("eShopPay_shoppingCartData", JSON.stringify(shoppingCartData));
+            $(".cart_count").text(shoppingCartData.length);
+
+            $("#div_ShoppingCart").empty();
+        }
+
+        function createPayment() {
+            var memberLoginState = window.sessionStorage.getItem("eShopPay_MemberLoginState");
+            var LoginAccount = window.sessionStorage.getItem("eShopPay_MemberEmail");
+            $(".loading").show();
+            $(".cart_menu").hide();
+            if (memberLoginState) {
+                if (memberLoginState.toUpperCase() == "SUCCESS") {
+                    if (shoppingCartData.length == 0) {
+                        $(".loading").hide();
+                        errAlert("", "購入したい製品を選択してください");
+                    } else {
+                        let totalAmount = 0;
+
+                        for (var i = 0; i < shoppingCartData.length; i++) {
+                            totalAmount += parseInt(shoppingCartData[i].Price);
+                        }
+
+                        shopClient.PaymentCreateBankCard(LoginAccount, totalAmount, shoppingCartData, function (success, o) {
+                            if (success == true) {
+                                if (o.Result == 0) {
+                                    $(".loading").hide();
+                                    Swal.fire({
+                                        text: "注文が作成されました。チェックアウトページに移動してください",
+                                        icon: 'success'
+                                    }).then((result) => {
+                                        window.location.href = "TransferInformation.html?PaymentID=" + o.Message;
+                                    });
+                                } else {
+                                    $(".loading").hide();
+                                    errAlert("", o.Message);
+                                }
+                            } else {
+                                $(".loading").hide();
+                                errAlert("", "エラーが発生しました。お手数ですが、ページを更新して再度お試しください。");
+                            }
+                        });
+                    }
+                } else {
+                    $(".loading").hide();
+                    Swal.fire({
+                        text: "まずログインしてください",
+                        icon: 'error'
+                    }).then((result) => {
+                        window.location.href = "Login.html";
+                    });
+                }
+            } else {
+                $(".loading").hide();
+                Swal.fire({
+                    text: "まずログインしてください",
+                    icon: 'error'
+                }).then((result) => {
+                    window.location.href = "Login.html";
+                });
+            }
+
+        }
+
+        //#region Alert
+        function successAlert(title, text) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'success'
+            });
+        }
+
+        function errAlert(title, text) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'error'
+            });
+        }
+        //#endregion
+
+        function init() {
+            shopClient = new ShopAPI("../API/ShopAPI.asmx");
+            checkBaseInfo();
+
+            GetSign();
+
+            window.setInterval(function () {
+                GetSign();
+            }, 100000);
+        }
+
+        function GetSign() {
+            shopClient.GetSign(function (success, o) {
+                if (success == true) {
+
+                } else {
+
+                }
+            });
+        }
+
+        function logout() {
+
+            Swal.fire({
+                text: "ログアウトしますか?",
+                icon: 'error',
+                showCancelButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.sessionStorage.removeItem("eShopPay_MemberLoginState");
+                    window.sessionStorage.removeItem("eShopPay_MemberLoginState");
+                    window.sessionStorage.removeItem("eShopPay_shoppingCartData");
+                    window.sessionStorage.removeItem("eShopPay_MemberUserID");
+
+                    window.location.href = "index.html";
+                }
+            });
+        }
+
+        window.onload = init;
+    </script>
+</head>
+<body>
+    <div class="mm-page">
+        <div id="wrap" class="wrap">
+            <header class="header" id="header" style="left: 0px;">
+                <div class="subHeader">
+                    <div class="header_inner clearfix">
+                        <div class="language">
+                            <div class="language_selectBox">
+                                <img src="./image/icon_ja.png" class="language_selectImg" alt="ja">
+                                <p class="language_selectText">Japanese</p>
+                            </div>
+                            <ul class="language_menu">
+                                <li>
+                                    <div class="language_item language_item-selected">
+                                        <img src="./image/icon_ja.png" class="language_icon language_icon-ja" alt="ja">
+                                        <p class="language_text">Japanese</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="subHeader_list">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="header_inner clearfix">
+                    <div class="header_logo">
+                        <a href=""><img src="./image/logo.png" class="header_logoImg" alt="ギフト券・ギフトカードの格安購入・換金・売買なら。"></a>
+                    </div>
+                </div>
+            </header>
+
+
+            <main>
+                <section class="content other">
+                    <h1 class="h1Title01 title_box">法的記載事項</h1>
+                    <section class="otherColumn">
+                        <h2 class="subtitle01">特定商取引法に基づく表示</h2>
+                        <div class="formTable">
+                            <table class="formTable_inner">
+                                <tbody>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="会社名">会社名</th>
+                                        <td class="formTable_cell formTable_cell-confirm">J.V.HOLDINGS 株式会社</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="代表者名">代表者名</th>
+                                        <td class="formTable_cell formTable_cell-confirm">張紹洋</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="所在地">所在地</th>
+                                        <td class="formTable_cell formTable_cell-confirm">大阪市中央区島之内一丁目21番19号</td>
+                                    </tr>
+                    
+                                    
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="支払方法">支払方法</th>
+                                        <td class="formTable_cell formTable_cell-confirm">
+                                            銀行振込
+                                            <br>コンビニ入金
+                                        </td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="発送方法">発送方法</th>
+                                        <td class="formTable_cell formTable_cell-confirm">アカウントサービス「購入履歴」へのコード表示をもって発送といたします。</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="発送料">発送料</th>
+                                        <td class="formTable_cell formTable_cell-confirm">0 円</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="販売者">販売者</th>
+                                        <td class="formTable_cell formTable_cell-confirm">当サイトユーザー又は当社</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="販売価格帯">販売価格帯</th>
+                                        <td class="formTable_cell formTable_cell-confirm">各商品に表記された価格に準じます。</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="商品等の引き渡し時期">商品等の引き渡し時期</th>
+                                        <td class="formTable_cell formTable_cell-confirm">ギフト番号の確認手続の完了をもって引き渡しといたします。</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="キャンセル・返金の申し出">キャンセル・返金の申し出</th>
+                                        <td class="formTable_cell formTable_cell-confirm">
+                                            <strong>購入から30分以内に、必ずギフト券を使用して、有効確認を行ってください。</strong>
+                                            <br>
+                                            <br>【チェックポイント】
+                                            <br><strong>・ギフト券が登録できること、または利用できること。</strong>
+                                            <br><strong>・表示内容に誤りがないこと。</strong>
+                                            <br>
+                                            <br>有効確認の結果を、購入履歴より送信してください。
+                                            <br><strong>（有効なら登録完了、問題があれば無効報告のボタンを押してください。）</strong>
+                                            <br>
+                                            <br>無効報告が送信されると、出品者に通知され、出品者がギフト券の調査を行います。
+                                            <br>返金の流れについては次項をご確認ください。
+                                        </td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="返金について">返金について</th>
+                                        <td class="formTable_cell formTable_cell-confirm">
+                                            <strong>
+                                                購入したギフト券が登録・利用できない場合は、
+                                                <br>購入から30分以内に、必ず無効報告を送信してください。
+                                            </strong>
+                                            <br>
+                                            <br>※有効報告・無効報告が送信されずに30分が経過すると、売買契約が成立します。
+                                            <br><strong>売買契約の成立後は返金制度の対象外</strong>となりますので、購入後はすみやかにギフト券を使用してください。
+                                            <br>
+                                            <br>【無効報告後の流れ】
+                                            <br>出品者がギフト券の調査を行います。
+                                            <br>
+                                            <br><strong>(1) 出品者が返金を承諾した場合、購入者に返金となります。</strong>
+                                            <br>
+                                            <br>(2) 24時間以内に出品者から当サイトへ異議申し立てがあった場合
+                                            <br>当サイトが仲介に入り、双方に聞き取り調査を行います。
+                                            <br><strong>出品者側に原因がある場合、購入者に返金となります。</strong>
+                                            <br>
+                                            <br>※購入者側に原因がある場合は返金いたしかねます。
+                                            <br>※調査にはお時間を要する場合がございますのであらかじめご了承ください。
+                                            <br>※問題の特定後は、原則翌営業日以内に返金を行います。（額面相違の場合は通常よりお時間を要します。）
+                                            <br>
+                                            <br>(3) 出品者が対応しない場合
+                                            <br><strong>無効報告から24時間以上経過しても出品者が対応しない場合、購入者に返金となります。</strong>
+                                            <br>
+                                            <br>※24時間経過後は、原則翌営業日以内に返金を行います。
+                                        </td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="本サービスに関する連絡先">本サービスに関する連絡先</th>
+                                        <td class="formTable_cell formTable_cell-confirm">service@crownpointnow.com</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section style="display:none">
+                        <h2 class="subtitle01">古物営業法に基づく表示</h2>
+                        <div class="formTable">
+                            <table class="formTable_inner">
+                                <tbody>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="会社名">会社名</th>
+                                        <td class="formTable_cell formTable_cell-confirm">J.V.HOLDINGS 株式会社</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="古物営業許可">古物営業許可</th>
+                                        <td class="formTable_cell formTable_cell-confirm">候補</td>
+                                    </tr>
+                                    <tr class="formTable_line">
+                                        <th class="formTable_title" id="お問い合わせご連絡先">お問い合わせご連絡先</th>
+                                        <td class="formTable_cell formTable_cell-confirm">service@crownpointnow.com</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+            </main>
+
+            <footer class="footer" id="footer">
+                <div class="footer_inner">
+                    <div class="app">
+                        <p class="footerCategory_title">当サイトはプライバシー保護のためSSL暗号化通信を使用しています。</p>
+                    </div>
+                    <div class="footerCategory_box">
+                        <p class="footerCategory_lead">各種ギフト券・ギフトカードの商標・ロゴは各種ギフト券の権利所有者、またはその関連会社の商標です。</p>
+                        <ul class="footerCategory_list">
+                            <li class="footerCategory_item">
+                                Amazonギフト
+                            </li>
+                            <li class="footerCategory_item">
+                                楽天ギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Appleギフトカード/App Store &amp; iTunesギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                アップルストアギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Google Playカード
+                            </li>
+                            <li class="footerCategory_item">
+                                LINEプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                nanacoギフト
+                            </li>
+                            <li class="footerCategory_item">
+                                NET CASH（ネットキャッシュ）
+                            </li>
+                            <li class="footerCategory_item">
+                                ANA株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                JAL株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                スターフライヤー株主優待券
+                            </li>
+                            <li class="footerCategory_item">
+                                Netflixプリペイド・ギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Huluチケット
+                            </li>
+                            <li class="footerCategory_item">
+                                U-NEXTギフトコード
+                            </li>
+                            <li class="footerCategory_item">
+                                WebMoneyギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                ニンテンドープリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                プレイステーションストアカード
+                            </li>
+                            <li class="footerCategory_item">
+                                ナイキギフトカード
+                            </li>
+                            <li class="footerCategory_item">
+                                モバコインカード
+                            </li>
+                            <li class="footerCategory_item">
+                                GREEプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                DMMプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                DMMポイントコード
+                            </li>
+                            <li class="footerCategory_item">
+                                ビットキャッシュ（BitCash）
+                            </li>
+                            <li class="footerCategory_item">
+                                レコチョクプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                XBOXプリペイドカード/Windowsストアプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Skypeプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                バナコインプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                Amebaプリペイドカード
+                            </li>
+                            <li class="footerCategory_item">
+                                JCBプレモカード
+                            </li>
+                            <li class="footerCategory_item">
+                                LINEギフトコード
+                            </li>
+                            <li class="footerCategory_item">
+                                楽天ポイントギフトカード
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pagetop_sp sp-show">
+                    <a href="javascript:void(0);"><img src="./image/pagetop_sp.png" class="pagetop_spImg" alt="ページの先頭へ"></a>
+                </div>
+                <div class="footerNavi">
+                    <div class="footer_inner">
+                        <ul class="footerNavi_menu">
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/LawRecorded.html">法的記載事項</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/TermsOfService.html">利用規約</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/CompanyInformation.html">会社概要</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/Privacy.html">プライバシーポリシー</a>
+                            </li>
+                            <li class="footerNavi_item">
+                                <a class="footerNavi_text" href="/Shop/Inquiry.html">お問い合わせ</a>
+                            </li>
+                        </ul>
+                        <div class="footerNavi_logo"><img src="./image/footer_logo.png" class="footerNavi_logoImg" alt="DAYNEEDS"></div>
+                        <p class="copyright"><small class="copyright_text">©J.V.HOLDINGS 株式会社</small></p>
+                    </div>
+                </div>
+            </footer>
+        </div><div class="loading"></div>
+    </div>
+
+
+
+    <div id="mm-blocker"></div><div id="topcontrol" title="Scroll Back to Top" style="position: fixed; bottom: 124px; left: auto; right: 5px; opacity: 0; cursor: pointer; z-index: 100;"><img src="./image/pagetop.png" alt="ページの先頭へ"></div>
+</body>
+</html>
