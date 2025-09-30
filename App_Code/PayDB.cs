@@ -547,7 +547,7 @@ public static class PayDB
         System.Data.SqlClient.SqlCommand DBCmd = null;
         int RetValue;
 
-        SS = "UPDATE PaymentTable SET PaymentSerial=@PaymentSerial, ProcessStatus=-1 WHERE ProcessStatus=0 AND PaymentID=@PaymentID";
+        SS = "UPDATE PaymentTable SET PaymentSerial=@PaymentSerial WHERE ProcessStatus=0 AND PaymentID=@PaymentID";
         DBCmd = new System.Data.SqlClient.SqlCommand();
         DBCmd.CommandText = SS;
         DBCmd.CommandType = System.Data.CommandType.Text;

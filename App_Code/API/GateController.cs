@@ -1241,10 +1241,9 @@ public class GateController : ApiController
         {
             PaymentSerial = PaymentModel.OrderID;
         }
-        //APL25 看支付寶設定什麼再做修改
-        if (PaymentModel.ServiceType == "JOOB08" || PaymentModel.ServiceType == "APL25") {
-            if (PayDB.UpdatePaymentSerialBank(PaymentSerial, PaymentModel.PaymentID) == 0)
-            {
+        //APL25(AliPay_QrCode) 看支付寶設定什麼再做修改
+        if (PaymentModel.ServiceType == "JOOB08" || PaymentModel.ProviderCode == "AliPay_QrCode") {
+            if (PayDB.UpdatePaymentSerialBank(PaymentSerial, PaymentModel.PaymentID) == 0) {
                 PayDB.InsertDownOrderTransferLog("建立订单号失败", 0, PaymentSerial, body.OrderID, body.CompanyCode, true);
                 paymentResult.Status = GatewayCommon.ResultStatus.ERR;
                 paymentResult.Message = "建立订单号失败";
@@ -1289,7 +1288,7 @@ public class GateController : ApiController
 
                 return response;
             }
-        } else if (PaymentModel.ServiceType == "APL25") {   //APL25 看支付寶設定什麼再做修改
+        } else if (PaymentModel.ProviderCode == "AliPay_QrCode") {   //APL25 (AliPay_QrCode) 看支付寶設定什麼再做修改
             var bindingBankCard = PayDB.spPaymentBindingBankCard(PaymentModel.PaymentID, 0, PaymentModel.OrderAmount, PaymentModel.OrderAmount, PaymentModel.UserName, "", "", "", "", "", "", "", 1);
             if (bindingBankCard == 0) {
                 var request = Request;
