@@ -18245,6 +18245,467 @@ public class CallBackController : ApiController
     }
     #endregion
 
+    #region Fl88Pay
+    [HttpGet]
+    [HttpPost]
+    [ActionName("Fl88PayNotify")]
+    public HttpResponseMessage Fl88PayNotify([FromBody] _AeePayAsyncNotifyBody NotifyBody) {
+        GatewayCommon.ProviderSetting providerSetting = GatewayCommon.GetProverderSettingData("AeePay");
+        GatewayCommon.Payment paymentModel;
+        int processStatus;
+        HttpResponseMessage response;
+        bool companyRequestResult = false;
+        GatewayCommon.GPayReturn gpayReturn = new GatewayCommon.GPayReturn() { SetByPaymentRetunData = new GatewayCommon.SetByPaymentRetunData() };
+        string paymentSerial = "";
+        string sign;
+
+        #region 回调IP检查
+        string ProxyIP = CodingControl.GetUserIP();
+        if (!providerSetting.ProviderIP.Contains(ProxyIP)) {
+            PayDB.InsertPaymentTransferLog("该IP未在白名单内 : " + ProxyIP, 3, "", providerSetting.ProviderCode);
+            response = Request.CreateResponse(HttpStatusCode.OK);
+            HttpContext.Current.Response.Write("fail");
+            //HttpContext.Current.Response.Flush();
+            //HttpContext.Current.Response.End();
+            return response;
+        }
+        #endregion
+
+
+        if (NotifyBody != null) {
+            #region 取得PaymentID
+            PayDB.InsertPaymentTransferLog("供应商完成订单通知,回调IP:" + ProxyIP + ",资料:" + JsonConvert.SerializeObject(NotifyBody), 3, paymentSerial, providerSetting.ProviderCode);
+            paymentSerial = NotifyBody.morderno;
+            #endregion
+
+        } else {
+            PayDB.InsertPaymentTransferLog("供应商完成订单通知有误", 3, "", providerSetting.ProviderCode);
+            response = Request.CreateResponse(HttpStatusCode.OK);
+            HttpContext.Current.Response.Write("fail");
+
+            return response;
+        }
+
+        try {
+
+            #region 簽名檢查
+
+            string signStr = providerSetting.MerchantCode + "|" + NotifyBody.orderno + "|" + NotifyBody.morderno + "|" + NotifyBody.paycode + "|" + NotifyBody.tjmoney + "|" + NotifyBody.money + "|" + NotifyBody.status + "|" + providerSetting.MerchantKey;
+
+            sign = CodingControl.GetMD5(signStr, false);
+
+            if (sign != NotifyBody.sign) {
+                PayDB.InsertPaymentTransferLog("供应商完成订单通知,签名有误", 3, paymentSerial, providerSetting.ProviderCode);
+                response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContext.Current.Response.Write("sign fail");
+                //HttpContext.Current.Response.Flush();
+                //HttpContext.Current.Response.End();
+
+                return response;
+            }
+
+            #endregion
+
+
+            #region 轉換status代碼
+
+            #region 反查訂單
+            System.Data.DataTable DT = null;
+            DT = PayDB.GetPaymentByPaymentID(paymentSerial);
+
+            if (DT != null && DT.Rows.Count > 0) {
+
+                if (NotifyBody.status == "1") {
+                    paymentModel = GatewayCommon.ToList<GatewayCommon.Payment>(DT).FirstOrDefault();
+                    if (paymentModel.OrderAmount != decimal.Parse(NotifyBody.tjmoney)) {
+                        PayDB.InsertPaymentTransferLog("金額不符", 3, "", providerSetting.ProviderCode);
+                        response = Request.CreateResponse(HttpStatusCode.OK);
+                        HttpContext.Current.Response.Write("error");
+                        //HttpContext.Current.Response.Flush();
+                        //HttpContext.Current.Response.End();
+                        return response;
+                    }
+
+                    GatewayCommon.PaymentByProvider providerRequestData = new GatewayCommon.PaymentByProvider();
+                    providerRequestData = GatewayCommon.QueryPaymentByProvider(paymentModel);
+
+                    if (providerRequestData.IsPaymentSuccess == true) {
+                        processStatus = 2;
+                    } else {
+                        response = Request.CreateResponse(HttpStatusCode.OK);
+                        HttpContext.Current.Response.Write("fail");
+                        //HttpContext.Current.Response.Flush();
+                        //HttpContext.Current.Response.End();
+                        return response;
+                    }
+                } else {
+                    PayDB.InsertBotSendLog(providerSetting.ProviderCode, providerSetting.ProviderCode + "反查订单失败,资料库内无此笔订单");
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("fail");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                }
+
+            } else {
+                PayDB.InsertPaymentTransferLog("反查订单失败,资料库内无此笔订单", 3, "", providerSetting.ProviderCode);
+
+                PayDB.InsertBotSendLog(providerSetting.ProviderCode, providerSetting.ProviderCode + "反查订单失败,资料库内无此笔订单");
+                response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContext.Current.Response.Write("fail");
+                //HttpContext.Current.Response.Flush();
+                //HttpContext.Current.Response.End();
+                return response;
+            }
+            #endregion
+
+            #endregion
+
+            //寫入預存
+            switch (PayDB.SetPaymentProcessStatus(paymentSerial, processStatus, JsonConvert.SerializeObject(NotifyBody), "", decimal.Parse(NotifyBody.tjmoney), NotifyBody.merchantno)) {
+                case 0:
+                    //撈取該單，準備回傳資料
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    paymentModel = PayDB.GetPaymentByPaymentID(paymentSerial).ToList<GatewayCommon.Payment>().FirstOrDefault();
+                    PayDB.InsertPaymentTransferLog("订单完成,尚未通知商户", 3, paymentSerial, providerSetting.ProviderCode);
+                    gpayReturn.SetByPayment(paymentModel, GatewayCommon.PaymentResultStatus.Successs);
+                    System.Data.DataTable CompanyDT = PayDB.GetCompanyByID(paymentModel.forCompanyID, true);
+                    GatewayCommon.Company CompanyModel = GatewayCommon.ToList<GatewayCommon.Company>(CompanyDT).FirstOrDefault();
+                    if (CompanyModel.IsProxyCallBack == 0) {
+                        companyRequestResult = GatewayCommon.ReturnCompany4(30, gpayReturn, paymentModel.ProviderCode);
+                    } else {
+                        companyRequestResult = GatewayCommon.ReturnCompany(30, gpayReturn, providerSetting.ProviderCode);
+                    }
+                    break;
+                case -1:
+                    //-1=交易單 不存在
+                    PayDB.InsertPaymentTransferLog("交易单不存在", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                case -2:
+                    //-2=交易資料有誤 
+                    PayDB.InsertPaymentTransferLog("交易资料有误", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    paymentModel = PayDB.GetPaymentByPaymentID(paymentSerial).ToList<GatewayCommon.Payment>().FirstOrDefault();
+                    gpayReturn.SetByPayment(paymentModel, GatewayCommon.PaymentResultStatus.ProblemPayment);
+                    CompanyDT = PayDB.GetCompanyByID(paymentModel.forCompanyID, true);
+                    CompanyModel = GatewayCommon.ToList<GatewayCommon.Company>(CompanyDT).FirstOrDefault();
+                    if (CompanyModel.IsProxyCallBack == 0) {
+                        companyRequestResult = GatewayCommon.ReturnCompany4(30, gpayReturn, paymentModel.ProviderCode);
+                    } else {
+                        companyRequestResult = GatewayCommon.ReturnCompany(30, gpayReturn, providerSetting.ProviderCode);
+                    }
+                    break;
+                case -3:
+                    //-3=供應商，交易失敗
+                    PayDB.InsertPaymentTransferLog("订单完成,尚未通知商户", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    paymentModel = PayDB.GetPaymentByPaymentID(paymentSerial).ToList<GatewayCommon.Payment>().FirstOrDefault();
+                    gpayReturn.SetByPayment(paymentModel, GatewayCommon.PaymentResultStatus.Failure);
+                    CompanyDT = PayDB.GetCompanyByID(paymentModel.forCompanyID, true);
+                    CompanyModel = GatewayCommon.ToList<GatewayCommon.Company>(CompanyDT).FirstOrDefault();
+                    if (CompanyModel.IsProxyCallBack == 0) {
+                        companyRequestResult = GatewayCommon.ReturnCompany4(30, gpayReturn, paymentModel.ProviderCode);
+                    } else {
+                        companyRequestResult = GatewayCommon.ReturnCompany(30, gpayReturn, providerSetting.ProviderCode);
+                    }
+                    break;
+                case -4:
+                    //-4=鎖定失敗
+                    PayDB.InsertPaymentTransferLog("锁定失败", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                case -5:
+                    //-5=加扣點失敗 
+                    PayDB.InsertPaymentTransferLog("加扣点失败", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                case -6:
+                    //-6=通知廠商中 
+                    PayDB.InsertPaymentTransferLog("通知厂商中", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                case -7:
+                    //-7=交易單非可修改之狀態 
+                    PayDB.InsertPaymentTransferLog("交易单非可修改之状态", 3, paymentSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                default:
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("ok");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    break;
+            }
+        } catch (Exception ex) {
+            // Get stack trace for the exception with source file information
+            var st = new System.Diagnostics.StackTrace(ex, true);
+            // Get the top stack frame
+            var frame = st.GetFrame(0);
+            // Get the line number from the stack frame
+            var line = frame.GetFileLineNumber();
+            PayDB.InsertPaymentTransferLog("供应商完成订单通知,系统有误:" + ex.Message + ",Line:" + line, 3, "", providerSetting.ProviderCode);
+            throw;
+        } finally {
+
+        }
+
+        if (companyRequestResult) {
+            PayDB.UpdatePaymentComplete(paymentSerial);
+        }
+
+        return response;
+    }
+
+    [HttpGet]
+    [HttpPost]
+    [ActionName("Fl88PayWithdrawNotify")]
+    public HttpResponseMessage Fl88PayWithdrawNotify(_AeePayWithdrawAsyncNotifyBody NotifyBody) {
+
+        GatewayCommon.ProviderSetting providerSetting = GatewayCommon.GetProverderSettingData("AeePay");
+        bool withdrawSuccess = false;
+        string withdrawSerial = "";
+        string sign = "";
+        Dictionary<string, string> sendDic = new Dictionary<string, string>();
+        GatewayCommon.Withdrawal withdrawalModel;
+        GatewayCommon.GPayReturnByWithdraw gpayReturn = new GatewayCommon.GPayReturnByWithdraw() { SetByWithdrawRetunData = new GatewayCommon.SetByWithdrawRetunData() };
+        HttpResponseMessage response;
+
+        #region 回调IP检查
+        string ProxyIP = CodingControl.GetUserIP();
+        if (!providerSetting.ProviderIP.Contains(ProxyIP)) {
+            PayDB.InsertPaymentTransferLog("该IP未在白名单内 : " + ProxyIP, 3, "", providerSetting.ProviderCode);
+            response = Request.CreateResponse(HttpStatusCode.OK);
+            HttpContext.Current.Response.Write("fail");
+            //HttpContext.Current.Response.Flush();
+            //HttpContext.Current.Response.End();
+            return response;
+        }
+        #endregion
+
+        if (NotifyBody != null) {
+            #region 取得withdrawSerial
+            withdrawSerial = NotifyBody.morderno;
+            #endregion
+            PayDB.InsertPaymentTransferLog("供应商完成代付订单通知,回调IP:" + ProxyIP + ",资料:" + JsonConvert.SerializeObject(NotifyBody), 4, withdrawSerial, providerSetting.ProviderCode);
+        } else {
+            PayDB.InsertPaymentTransferLog("供应商完成代付订单通知有误", 4, withdrawSerial, providerSetting.ProviderCode);
+        }
+
+
+
+        try {
+            #region 簽名檢查
+
+            string signStr = "";
+
+            signStr = providerSetting.MerchantCode + "|" + NotifyBody.orderno + "|" + NotifyBody.bankcode + "|" + NotifyBody.morderno + "|" + NotifyBody.cardno + "|" + NotifyBody.tjmoney + "|" + NotifyBody.money + "|" + NotifyBody.status + "|" + providerSetting.MerchantKey;
+
+
+            sign = CodingControl.GetMD5(signStr, false);
+
+            if (sign != NotifyBody.sign) {
+                PayDB.InsertPaymentTransferLog("供应商完成订单通知,签名有误", 3, withdrawSerial, providerSetting.ProviderCode);
+                response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContext.Current.Response.Write("sign fail");
+                //HttpContext.Current.Response.Flush();
+                //HttpContext.Current.Response.End();
+
+                return response;
+            }
+
+            #endregion
+
+
+            #region 轉換status代碼
+
+            #region 反查訂單
+            System.Data.DataTable DT = null;
+            DT = PayDB.GetWithdrawalByWithdrawID(withdrawSerial);
+
+            if (DT != null && DT.Rows.Count > 0) {
+                if (NotifyBody.status == "3" || NotifyBody.status == "4") {
+                    withdrawalModel = GatewayCommon.ToList<GatewayCommon.Withdrawal>(DT).FirstOrDefault();
+                    if (withdrawalModel.Amount != decimal.Parse(NotifyBody.tjmoney)) {
+                        PayDB.InsertPaymentTransferLog("金額不符", 3, "", providerSetting.ProviderCode);
+                        response = Request.CreateResponse(HttpStatusCode.OK);
+                        HttpContext.Current.Response.Write("amount error");
+                        //HttpContext.Current.Response.Flush();
+                        //HttpContext.Current.Response.End();
+                        return response;
+                    }
+
+                    GatewayCommon.WithdrawalByProvider providerRequestData = new GatewayCommon.WithdrawalByProvider();
+                    providerRequestData = GatewayCommon.QueryWithdrawalByProvider(withdrawalModel);
+
+                    if (providerRequestData.IsQuerySuccess) {
+                        if (providerRequestData.WithdrawalStatus == 0) {
+                            withdrawSuccess = true;
+                        } else if (providerRequestData.WithdrawalStatus == 1) {
+                            withdrawSuccess = false;
+                        } else {
+                            PayDB.InsertPaymentTransferLog("供应商完成代付订单通知,订单处理中", 4, withdrawSerial, providerSetting.ProviderCode);
+                            response = Request.CreateResponse(HttpStatusCode.OK);
+                            HttpContext.Current.Response.Write("WaitingProcess");
+                            //HttpContext.Current.Response.Flush();
+                            //HttpContext.Current.Response.End();
+                            return response;
+                        }
+                    } else {
+                        PayDB.InsertPaymentTransferLog("供应商完成代付订单通知,查詢訂單失敗", 4, withdrawSerial, providerSetting.ProviderCode);
+                        response = Request.CreateResponse(HttpStatusCode.OK);
+                        HttpContext.Current.Response.Write("WaitingProcess");
+                        //HttpContext.Current.Response.Flush();
+                        //HttpContext.Current.Response.End();
+                        return response;
+                    }
+                } else {
+                    PayDB.InsertPaymentTransferLog("供应商完成代付订单通知,订单处理中", 4, withdrawSerial, providerSetting.ProviderCode);
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    HttpContext.Current.Response.Write("WaitingProcess");
+                    //HttpContext.Current.Response.Flush();
+                    //HttpContext.Current.Response.End();
+                    return response;
+                }
+
+            } else {
+                PayDB.InsertPaymentTransferLog("反查订单失败,资料库内无此笔订单", 4, "", providerSetting.ProviderCode);
+
+                PayDB.InsertBotSendLog(providerSetting.ProviderCode, providerSetting.ProviderCode + "反查订单失败,资料库内无此笔订单");
+                response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContext.Current.Response.Write("fail");
+                //HttpContext.Current.Response.Flush();
+                //HttpContext.Current.Response.End();
+                return response;
+            }
+            #endregion
+
+            #endregion
+
+            if (withdrawalModel != null) {   //代付
+                GatewayCommon.WithdrawResultStatus returnStatus;
+
+                if (withdrawSuccess) {
+                    //2代表已成功且扣除額度,避免重複上分
+                    if (withdrawalModel.UpStatus != 2) {
+                        //不修改Withdraw之狀態，預存中調整
+                        PayDB.UpdateWithdrawSerialByUpData(2, JsonConvert.SerializeObject(NotifyBody), NotifyBody.orderno, decimal.Parse(NotifyBody.tjmoney), withdrawSerial);
+                        var intReviewWithdrawal = PayDB.ReviewWithdrawal(withdrawSerial);
+                        switch (intReviewWithdrawal) {
+                            case 0:
+                                PayDB.InsertPaymentTransferLog("订单完成,尚未通知商户", 4, withdrawSerial, providerSetting.ProviderCode);
+                                returnStatus = GatewayCommon.WithdrawResultStatus.Successs;
+                                break;
+                            default:
+                                //調整訂單為系統失敗單
+                                PayDB.UpdateWithdrawStatus(14, withdrawSerial);
+                                PayDB.InsertPaymentTransferLog("订单有误,系统问题单:" + intReviewWithdrawal, 4, withdrawSerial, providerSetting.ProviderCode);
+                                returnStatus = GatewayCommon.WithdrawResultStatus.ProblemWithdraw;
+                                break;
+                        }
+                    } else {
+
+                        if (withdrawalModel.Status == 2) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.Successs;
+                        } else if (withdrawalModel.Status == 3) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.Failure;
+                        } else if (withdrawalModel.Status == 14) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.ProblemWithdraw;
+                        } else {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.WithdrawProgress;
+                        }
+                        PayDB.InsertPaymentTransferLog("订单完成,尚未通知商户", 4, withdrawSerial, providerSetting.ProviderCode);
+
+                    }
+                } else {
+                    if (withdrawalModel.UpStatus != 2) {
+                        PayDB.InsertPaymentTransferLog("订单完成,供应商通知此单失败,尚未通知商户", 4, withdrawSerial, providerSetting.ProviderCode);
+                        PayDB.UpdateWithdrawSerialByUpData(2, JsonConvert.SerializeObject(NotifyBody), NotifyBody.orderno, decimal.Parse(NotifyBody.tjmoney), 3, withdrawSerial);
+                        returnStatus = GatewayCommon.WithdrawResultStatus.Failure;
+                    } else {
+                        if (withdrawalModel.Status == 2) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.Successs;
+                        } else if (withdrawalModel.Status == 3) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.Failure;
+                        } else if (withdrawalModel.Status == 14) {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.ProblemWithdraw;
+                        } else {
+                            returnStatus = GatewayCommon.WithdrawResultStatus.WithdrawProgress;
+                        }
+                        PayDB.InsertPaymentTransferLog("订单完成,供应商通知此单失败,尚未通知商户", 4, withdrawSerial, providerSetting.ProviderCode);
+
+                    }
+                }
+
+                withdrawalModel = PayDB.GetWithdrawalByWithdrawID(withdrawSerial).ToList<GatewayCommon.Withdrawal>().FirstOrDefault();
+                //取得傳送資料
+                gpayReturn.SetByWithdraw(withdrawalModel, returnStatus);
+                //發送API 回傳商戶
+                if (withdrawalModel.FloatType != 0) {
+                    System.Data.DataTable CompanyDT = PayDB.GetCompanyByID(withdrawalModel.forCompanyID, true);
+                    GatewayCommon.Company CompanyModel = GatewayCommon.ToList<GatewayCommon.Company>(CompanyDT).FirstOrDefault();
+                    //發送三次回調(後台手動發款後用)
+                    if (CompanyModel.IsProxyCallBack == 0) {
+                        //發送一次回調 補單用
+                        if (GatewayCommon.ReturnCompanyByWithdraw4(30, gpayReturn, providerSetting.ProviderCode)) {
+                            //修改下游狀態
+                            PayDB.UpdateWithdrawSerialByStatus(2, withdrawalModel.WithdrawID);
+                        }
+                    } else {
+                        //發送一次回調 補單用
+                        if (GatewayCommon.ReturnCompanyByWithdraw(30, gpayReturn, providerSetting.ProviderCode)) {
+                            //修改下游狀態
+                            PayDB.UpdateWithdrawSerialByStatus(2, withdrawalModel.WithdrawID);
+                        }
+                    }
+                }
+
+            }
+
+            response = Request.CreateResponse(HttpStatusCode.OK);
+
+            HttpContext.Current.Response.Write("ok");
+            //HttpContext.Current.Response.Flush();
+            //HttpContext.Current.Response.End();
+        } catch (Exception ex) {
+            PayDB.InsertPaymentTransferLog("系统错误:" + ex.Message, 3, "", providerSetting.ProviderCode);
+            response = Request.CreateResponse(HttpStatusCode.OK);
+            HttpContext.Current.Response.Write("fail");
+            //HttpContext.Current.Response.Flush();
+            //HttpContext.Current.Response.End();
+            throw;
+        } finally {
+
+        }
+
+        return response;
+    }
+    #endregion
+
     [HttpGet]
     [HttpPost]
     [ActionName("TestCompanyReturn")]

@@ -1,0 +1,42 @@
+﻿{
+  "ProviderCode": "Fl88Pay",
+  "Charset": "UTF-8",
+  "ProviderUrl": "https://xpay.fl88p.com/api/pay/create_order",
+  "QueryOrderUrl": "https://xpay.fl88p.com/api/pay/query_order",
+  "QueryBalanceUrl": "",
+  "MerchantCode": "20000085",
+  "MerchantKey": "1ETHQTFF5B06HBD9TG2AOUMD4MIPPHB6JA0GNN436ITUOJZBSELZO0L4TKODWUULOID1KS3DBMB75OMDOYBIKLQUAXATUTBUYNUQHQNCLJXRSIYTAEGF18HTR2VZSHVU",
+  "NotifyAsyncUrl": "http://epay.dev4.mts.idv.tw/api/CallBack/Fl88PayNotify",
+  "NotifySyncUrl": "",
+  "WithdrawUrl": "",
+  "WithdrawNotifyAsyncUrl": "http://gateway.52gougoubi.com:8000/api/agentpay/apply",
+  "QueryWithdrawUrl": "http://gateway.52gougoubi.com:8000/api/agentpay/query_order",
+  "CallBackUrl": "http://epay.dev4.mts.idv.tw/ResultSuccess.cshtml",
+  "RequestType": 2,
+  "ProviderPublicKey": "",
+  "ProviderIP": [
+    "43.129.194.22",
+    "43.132.176.162",
+    "43.154.153.140",
+    "43.154.24.104"
+  ],
+  "ServiceSettings": [
+    {
+      "ServiceType": "IDRQR",
+      "TradeType": "IDRQR"
+    },
+    {
+      "ServiceType": "IDRQR",
+      "TradeType": "IDRQR"
+    }
+  ],
+  "CurrencyTypeSettings": null,
+  "OtherDatas": null,
+  "BankCodeSettings": [
+    {
+      "BankCode": "Wealth Development Bank",
+      "ProviderBankCode": "WDB"
+    }
+
+  ]
+}
